@@ -3,11 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <title>Lis — conselheira financeira</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
  
@@ -25,37 +23,35 @@
   --success: #6BAA8A;
   --warning: #D4956A;
   --danger: #C46060;
-  --radius: 16px;
-  --radius-sm: 10px;
-  --nav-h: 64px;
-  --header-h: 56px;
-  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --nav-h: 60px;
+  --safe: env(safe-area-inset-bottom, 0px);
 }
  
-html, body { height: 100%; overflow: hidden; }
- 
+/* BASE — sem overflow:hidden no body para não travar toque no iOS */
+html { height: 100%; }
 body {
   font-family: 'DM Sans', sans-serif;
   background: var(--cream);
   color: var(--ink);
-  display: flex;
-  flex-direction: column;
+  min-height: 100%;
+  /* NÃO colocar overflow:hidden aqui */
 }
  
-/* HEADER */
-header {
-  height: var(--header-h);
+/* HEADER fixo */
+.header {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 56px;
   background: var(--white);
   border-bottom: 1px solid var(--border);
-  padding: 0 16px;
   display: flex;
   align-items: center;
+  padding: 0 16px;
   gap: 10px;
-  flex-shrink: 0;
-  z-index: 10;
+  z-index: 100;
 }
  
-.logo-mark {
+.logo {
   width: 34px; height: 34px;
   background: var(--rose);
   border-radius: 50%;
@@ -67,10 +63,10 @@ header {
 }
  
 .header-title { flex: 1; }
-.header-title h1 { font-family: 'DM Serif Display', serif; font-size: 17px; font-weight: 400; }
-.header-title span { font-size: 12px; color: var(--ink-soft); }
+.header-title h1 { font-family: 'DM Serif Display', serif; font-size: 17px; font-weight: 400; line-height: 1.1; }
+.header-title p  { font-size: 12px; color: var(--ink-soft); }
  
-.hm-pill {
+.pill {
   background: var(--rose-pale);
   border-radius: 20px;
   padding: 4px 10px;
@@ -79,107 +75,134 @@ header {
   color: var(--ink-mid);
   white-space: nowrap;
 }
-.hm-pill.green { background: #E8F5EE; color: #2E6B4A; }
+.pill.g { background: #E8F5EE; color: #2E6B4A; }
  
-/* APP */
-.app { flex: 1; overflow: hidden; position: relative; }
+/* BOTTOM NAV fixa */
+.bottom-nav {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: calc(var(--nav-h) + var(--safe));
+  padding-bottom: var(--safe);
+  background: var(--white);
+  border-top: 1px solid var(--border);
+  display: flex;
+  z-index: 100;
+}
  
+.nav-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  background: none;
+  border: none;
+  color: var(--ink-soft);
+  font-size: 11px;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  padding: 8px 0;
+  /* IMPORTANTE: garantir área clicável */
+  -webkit-tap-highlight-color: rgba(0,0,0,0.05);
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.nav-btn svg { width: 22px; height: 22px; display: block; }
+.nav-btn.active { color: var(--rose-deep); }
+ 
+/* VIEWS — cada aba é uma div normal, exibida/escondida */
 .view {
   display: none;
-  flex-direction: column;
-  height: 100%;
-  position: absolute;
-  inset: 0;
+  padding-top: 56px; /* header */
+  padding-bottom: calc(var(--nav-h) + var(--safe) + 8px); /* nav */
+  min-height: 100vh;
 }
-.view.active { display: flex; }
+.view.active { display: block; }
  
 /* CHAT */
+#view-chat {
+  display: none;
+  flex-direction: column;
+}
+#view-chat.active { display: flex; }
+ 
 .messages {
   flex: 1;
-  overflow-y: auto;
-  padding: 16px 16px 8px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  -webkit-overflow-scrolling: touch;
-  padding-bottom: calc(var(--nav-h) + var(--safe-bottom) + 8px);
 }
  
-.msg { display: flex; gap: 8px; max-width: 86%; animation: fadeUp .25s ease; }
+.msg { display: flex; gap: 8px; max-width: 86%; }
 .msg.user { align-self: flex-end; flex-direction: row-reverse; }
  
 @keyframes fadeUp {
   from { opacity:0; transform:translateY(6px); }
   to   { opacity:1; transform:translateY(0); }
 }
+.msg { animation: fadeUp .22s ease; }
  
-.msg-avatar {
+.av {
   width: 28px; height: 28px;
   border-radius: 50%;
-  flex-shrink: 0;
   display: flex; align-items: center; justify-content: center;
   font-family: 'DM Serif Display', serif;
   font-size: 13px;
+  flex-shrink: 0;
   margin-top: 2px;
 }
-.msg.agent .msg-avatar { background: var(--rose); color: var(--white); }
-.msg.user  .msg-avatar { background: var(--ink); color: var(--white); font-size: 11px; }
+.msg.agent .av { background: var(--rose); color: var(--white); }
+.msg.user  .av { background: var(--ink); color: var(--white); font-size: 10px; }
  
-.msg-bubble {
+.bubble {
   padding: 10px 13px;
   border-radius: 18px;
   font-size: 14px;
   line-height: 1.55;
 }
-.msg.agent .msg-bubble {
-  background: var(--white);
-  border: 1px solid var(--border);
-  border-top-left-radius: 4px;
-}
-.msg.user .msg-bubble {
-  background: var(--rose);
-  border-top-right-radius: 4px;
-  color: var(--white);
-}
+.msg.agent .bubble { background: var(--white); border: 1px solid var(--border); border-top-left-radius: 4px; }
+.msg.user  .bubble { background: var(--rose); color: var(--white); border-top-right-radius: 4px; }
  
-/* QUICK REPLIES */
-.quick-replies {
-  padding: 8px 16px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 7px;
-  flex-shrink: 0;
-}
-.qr-btn {
+/* Quick replies */
+.qr-wrap { padding: 6px 16px 10px; display: flex; flex-wrap: wrap; gap: 7px; }
+.qr {
   background: var(--white);
-  border: 1px solid var(--rose);
+  border: 1.5px solid var(--rose);
   color: var(--rose-deep);
   border-radius: 20px;
-  padding: 7px 13px;
+  padding: 8px 14px;
   font-size: 13px;
   font-family: 'DM Sans', sans-serif;
   cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgba(232,165,152,0.2);
+  user-select: none;
+  -webkit-user-select: none;
 }
-.qr-btn:active { background: var(--rose); color: var(--white); }
+.qr:active { background: var(--rose); color: var(--white); }
  
-/* CHAT INPUT */
-.chat-input-wrap {
-  padding: 10px 12px;
-  padding-bottom: calc(10px + var(--nav-h) + var(--safe-bottom));
+/* Input area */
+.input-wrap {
+  position: sticky;
+  bottom: calc(var(--nav-h) + var(--safe));
   background: var(--white);
   border-top: 1px solid var(--border);
+  padding: 10px 12px;
   display: flex;
   gap: 8px;
   align-items: flex-end;
-  flex-shrink: 0;
+  z-index: 10;
 }
+ 
 .chat-input {
   flex: 1;
-  border: 1px solid var(--border);
+  border: 1.5px solid var(--border);
   border-radius: 22px;
-  padding: 9px 15px;
-  font-size: 16px;
+  padding: 10px 16px;
+  font-size: 16px; /* 16px evita zoom no iOS */
   font-family: 'DM Sans', sans-serif;
   outline: none;
   resize: none;
@@ -188,435 +211,353 @@ header {
   background: var(--cream);
   max-height: 100px;
   -webkit-appearance: none;
+  touch-action: manipulation;
 }
 .chat-input:focus { border-color: var(--rose); background: var(--white); }
 .chat-input::placeholder { color: var(--ink-soft); }
  
-.send-btn {
-  width: 40px; height: 40px;
+.send {
+  width: 42px; height: 42px;
   background: var(--rose);
   border: none;
   border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   cursor: pointer;
   flex-shrink: 0;
+  touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
-.send-btn:active { background: var(--rose-deep); }
-.send-btn svg { width: 17px; height: 17px; fill: white; }
+.send:active { background: var(--rose-deep); }
+.send svg { width: 18px; height: 18px; fill: white; }
  
-/* TYPING */
-.typing { display: flex; gap: 4px; align-items: center; padding: 4px 0; }
-.typing span { width: 6px; height: 6px; background: var(--rose); border-radius: 50%; animation: bounce .9s infinite; }
-.typing span:nth-child(2) { animation-delay: .15s; }
-.typing span:nth-child(3) { animation-delay: .3s; }
-@keyframes bounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-5px)} }
+/* Typing */
+.typing { display:flex; gap:4px; align-items:center; padding:2px 0; }
+.typing span { width:6px; height:6px; background:var(--rose); border-radius:50%; animation:bounce .9s infinite; }
+.typing span:nth-child(2){animation-delay:.15s}
+.typing span:nth-child(3){animation-delay:.3s}
+@keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-5px)}}
  
 /* FORMS */
-.form-view {
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  padding: 20px 16px;
-  padding-bottom: calc(var(--nav-h) + var(--safe-bottom) + 24px);
-  flex: 1;
-}
-.form-view h2 { font-family: 'DM Serif Display', serif; font-size: 22px; font-weight: 400; margin-bottom: 4px; }
-.form-view > p { font-size: 14px; color: var(--ink-soft); margin-bottom: 20px; line-height: 1.5; }
+.form-body { padding: 20px 16px; }
+.form-body h2 { font-family:'DM Serif Display',serif; font-size:22px; font-weight:400; margin-bottom:4px; }
+.form-body > p { font-size:14px; color:var(--ink-soft); margin-bottom:20px; line-height:1.5; }
  
-.form-section {
-  background: var(--white);
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
-  padding: 16px;
-  margin-bottom: 14px;
-}
-.form-section h3 {
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: .06em;
-  text-transform: uppercase;
-  color: var(--ink-soft);
-  margin-bottom: 14px;
-}
+.card { background:var(--white); border:1px solid var(--border); border-radius:16px; padding:16px; margin-bottom:14px; }
+.card h3 { font-size:12px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-soft); margin-bottom:14px; }
  
-.form-group { margin-bottom: 12px; }
-.form-group:last-child { margin-bottom: 0; }
-.form-group label { display: block; font-size: 13px; font-weight: 500; color: var(--ink-mid); margin-bottom: 5px; }
-.form-group input,
-.form-group select {
-  width: 100%;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 11px 13px;
-  font-size: 16px;
-  font-family: 'DM Sans', sans-serif;
-  color: var(--ink);
-  background: var(--white);
-  outline: none;
-  -webkit-appearance: none;
-  appearance: none;
+.fg { margin-bottom:12px; }
+.fg:last-child { margin-bottom:0; }
+.fg label { display:block; font-size:13px; font-weight:500; color:var(--ink-mid); margin-bottom:5px; }
+.fg input, .fg select {
+  width:100%;
+  border:1.5px solid var(--border);
+  border-radius:10px;
+  padding:12px 13px;
+  font-size:16px;
+  font-family:'DM Sans',sans-serif;
+  color:var(--ink);
+  background:var(--white);
+  outline:none;
+  -webkit-appearance:none;
+  appearance:none;
+  touch-action:manipulation;
 }
-.form-group input:focus,
-.form-group select:focus { border-color: var(--rose); }
+.fg input:focus, .fg select:focus { border-color:var(--rose); }
+.row { display:flex; gap:10px; }
+.row .fg { flex:1; }
  
-.form-row { display: flex; gap: 10px; }
-.form-row .form-group { flex: 1; }
- 
-.btn-primary {
-  width: 100%;
-  background: var(--rose);
-  color: var(--white);
-  border: none;
-  border-radius: var(--radius-sm);
-  padding: 14px;
-  font-size: 15px;
-  font-family: 'DM Sans', sans-serif;
-  font-weight: 500;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-  margin-top: 4px;
+.btn {
+  display:block; width:100%;
+  background:var(--rose); color:var(--white);
+  border:none; border-radius:10px;
+  padding:14px; font-size:15px;
+  font-family:'DM Sans',sans-serif; font-weight:500;
+  cursor:pointer; margin-top:4px;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color: rgba(232,165,152,0.3);
+  user-select:none; -webkit-user-select:none;
 }
-.btn-primary:active { background: var(--rose-deep); }
+.btn:active { background:var(--rose-deep); }
  
-/* RESULTADO */
-.calc-result {
-  background: var(--rose-pale);
-  border: 1px solid var(--rose-light);
-  border-radius: var(--radius);
-  padding: 16px;
-  margin-top: 16px;
-  display: none;
+/* Resultado */
+.result {
+  background:var(--rose-pale);
+  border:1px solid var(--rose-light);
+  border-radius:16px; padding:16px;
+  margin-top:16px; display:none;
 }
-.calc-result.show { display: block; animation: fadeUp .3s ease; }
-.calc-result h3 { font-family: 'DM Serif Display', serif; font-size: 17px; font-weight: 400; margin-bottom: 12px; }
-.calc-row { display: flex; justify-content: space-between; font-size: 14px; padding: 6px 0; border-bottom: 1px solid var(--rose-light); }
-.calc-row:last-of-type { border-bottom: none; }
-.calc-row.total { font-weight: 600; font-size: 15px; padding-top: 10px; }
-.calc-row .lbl { color: var(--ink-mid); }
-.val-bad  { color: var(--danger); font-weight: 500; }
-.val-good { color: var(--success); font-weight: 600; }
-.val-bold { font-weight: 600; }
+.result.on { display:block; animation:fadeUp .3s ease; }
+.result h3 { font-family:'DM Serif Display',serif; font-size:17px; font-weight:400; margin-bottom:12px; }
+.rrow { display:flex; justify-content:space-between; font-size:14px; padding:6px 0; border-bottom:1px solid var(--rose-light); }
+.rrow:last-of-type { border-bottom:none; }
+.rrow.tot { font-weight:600; font-size:15px; padding-top:10px; }
+.lbl { color:var(--ink-mid); }
+.vbad { color:var(--danger); font-weight:500; }
+.vgood { color:var(--success); font-weight:600; }
+.vbold { font-weight:600; }
+.alert { margin-top:10px; padding:10px 12px; border-radius:10px; font-size:13px; line-height:1.5; }
+.alert.ok   { background:#E8F5EE; color:#2E6B4A; border-left:3px solid var(--success); }
+.alert.warn { background:#FEF0E7; color:#8A4E20; border-left:3px solid var(--warning); }
+.alert.bad  { background:#FCEAEA; color:#7A2C2C; border-left:3px solid var(--danger); }
  
-.alerta { margin-top: 10px; padding: 10px 12px; border-radius: var(--radius-sm); font-size: 13px; line-height: 1.5; }
-.alerta.ok   { background: #E8F5EE; color: #2E6B4A; border-left: 3px solid var(--success); }
-.alerta.warn { background: #FEF0E7; color: #8A4E20; border-left: 3px solid var(--warning); }
-.alerta.bad  { background: #FCEAEA; color: #7A2C2C; border-left: 3px solid var(--danger); }
- 
-/* INSUMO CAMPO */
-.insumo-campo { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
-.insumo-campo select,
-.insumo-campo input {
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 10px;
-  font-size: 14px;
-  font-family: 'DM Sans', sans-serif;
-  color: var(--ink);
-  background: var(--white);
-  outline: none;
-  -webkit-appearance: none;
+/* Insumo campo */
+.ic { display:flex; gap:8px; align-items:center; margin-bottom:8px; }
+.ic select, .ic input {
+  border:1.5px solid var(--border); border-radius:10px;
+  padding:10px; font-size:14px;
+  font-family:'DM Sans',sans-serif; color:var(--ink);
+  background:var(--white); outline:none; -webkit-appearance:none;
+  touch-action:manipulation;
 }
-.insumo-campo select { flex: 2; }
-.insumo-campo input  { flex: 1; min-width: 60px; }
-.btn-rem { border: none; background: none; font-size: 20px; color: var(--ink-soft); cursor: pointer; padding: 0 2px; line-height: 1; }
-.btn-add-insumo {
-  width: 100%; background: none;
-  border: 1px dashed var(--border);
-  border-radius: var(--radius-sm);
-  padding: 10px; font-size: 13px;
-  color: var(--ink-soft); cursor: pointer;
-  font-family: 'DM Sans', sans-serif;
-  margin-top: 4px;
+.ic select { flex:2; }
+.ic input  { flex:1; min-width:60px; }
+.ic-rem { border:none; background:none; font-size:22px; color:var(--ink-soft); cursor:pointer; padding:0 4px; touch-action:manipulation; }
+.btn-add {
+  width:100%; background:none;
+  border:1.5px dashed var(--border); border-radius:10px;
+  padding:11px; font-size:13px; color:var(--ink-soft);
+  cursor:pointer; font-family:'DM Sans',sans-serif;
+  margin-top:4px; touch-action:manipulation;
 }
  
 /* DASHBOARD */
-.dash-view {
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  padding: 16px;
-  padding-bottom: calc(var(--nav-h) + var(--safe-bottom) + 24px);
-  flex: 1;
-}
-.dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
-.dash-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; }
-.dash-card .dc-label { font-size: 12px; color: var(--ink-soft); margin-bottom: 4px; }
-.dash-card .dc-value { font-family: 'DM Serif Display', serif; font-size: 20px; line-height: 1.1; }
-.dash-card .dc-value.green { color: var(--success); }
-.dash-card .dc-value.orange { color: var(--warning); }
-.dash-card .dc-sub { font-size: 11px; color: var(--ink-soft); margin-top: 3px; }
+.dash-body { padding:16px; }
+.dash-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
+.dc { background:var(--white); border:1px solid var(--border); border-radius:16px; padding:14px; }
+.dc .dl { font-size:12px; color:var(--ink-soft); margin-bottom:4px; }
+.dc .dv { font-family:'DM Serif Display',serif; font-size:20px; line-height:1.1; }
+.dc .dv.g { color:var(--success); }
+.dc .dv.o { color:var(--warning); }
+.dc .ds { font-size:11px; color:var(--ink-soft); margin-top:3px; }
  
-.dash-section { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 12px; overflow: hidden; }
-.dash-section-title { font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-soft); padding: 12px 14px 10px; border-bottom: 1px solid var(--border); }
+.section { background:var(--white); border:1px solid var(--border); border-radius:16px; margin-bottom:12px; overflow:hidden; }
+.stitle { font-size:12px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-soft); padding:12px 14px 10px; border-bottom:1px solid var(--border); }
  
-.atend-item { padding: 12px 14px; border-bottom: 1px solid var(--border); font-size: 13px; }
-.atend-item:last-child { border-bottom: none; }
-.atend-row1 { display: flex; justify-content: space-between; margin-bottom: 3px; }
-.atend-proc { font-weight: 500; }
-.atend-cobrado { color: var(--success); font-weight: 600; }
-.atend-row2 { display: flex; justify-content: space-between; }
-.atend-custo { color: var(--danger); font-size: 12px; }
-.atend-lucro { color: var(--ink-soft); font-size: 12px; }
+.bar-wrap { padding:14px; }
+.bar-labels { display:flex; justify-content:space-between; font-size:13px; margin-bottom:8px; }
+.bar-bg { background:var(--border); border-radius:4px; height:8px; overflow:hidden; }
+.bar-fill { height:100%; background:var(--rose); border-radius:4px; transition:width .5s; }
+.bar-hint { font-size:12px; color:var(--ink-soft); margin-top:8px; }
  
-.ins-item { display: flex; justify-content: space-between; padding: 10px 14px; border-bottom: 1px solid var(--border); font-size: 13px; }
-.ins-item:last-child { border-bottom: none; }
-.ins-name { font-weight: 500; }
-.ins-price { color: var(--ink-soft); }
+.ai { padding:12px 14px; border-bottom:1px solid var(--border); font-size:13px; }
+.ai:last-child { border-bottom:none; }
+.ai-r1 { display:flex; justify-content:space-between; margin-bottom:3px; }
+.ai-proc { font-weight:500; }
+.ai-val { color:var(--success); font-weight:600; }
+.ai-r2 { display:flex; justify-content:space-between; }
+.ai-cus { color:var(--danger); font-size:12px; }
+.ai-luc { color:var(--ink-soft); font-size:12px; }
  
-.meta-bar-wrap { padding: 14px; }
-.meta-bar-label { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px; }
-.meta-bar-bg { background: var(--border); border-radius: 4px; height: 8px; overflow: hidden; }
-.meta-bar-fill { height: 100%; background: var(--rose); border-radius: 4px; transition: width .5s; }
-.meta-hint { font-size: 12px; color: var(--ink-soft); margin-top: 8px; }
+.ii { display:flex; justify-content:space-between; padding:10px 14px; border-bottom:1px solid var(--border); font-size:13px; }
+.ii:last-child { border-bottom:none; }
+.in { font-weight:500; }
+.ip { color:var(--ink-soft); }
  
-.empty-state { padding: 28px 20px; text-align: center; color: var(--ink-soft); font-size: 14px; }
-.empty-icon { font-size: 26px; margin-bottom: 6px; }
- 
-/* BOTTOM NAV */
-.bottom-nav {
-  position: fixed;
-  bottom: 0; left: 0; right: 0;
-  height: calc(var(--nav-h) + var(--safe-bottom));
-  background: var(--white);
-  border-top: 1px solid var(--border);
-  display: flex;
-  z-index: 50;
-  padding-bottom: var(--safe-bottom);
-}
-.nav-btn {
-  flex: 1;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 4px; border: none; background: none;
-  cursor: pointer; color: var(--ink-soft);
-  font-size: 11px; font-family: 'DM Sans', sans-serif;
-  -webkit-tap-highlight-color: transparent;
-  padding: 0;
-}
-.nav-btn svg { width: 22px; height: 22px; }
-.nav-btn.active { color: var(--rose-deep); }
+.empty { padding:28px 20px; text-align:center; color:var(--ink-soft); font-size:14px; }
+.ei { font-size:26px; margin-bottom:6px; }
  
 /* TOAST */
 .toast {
-  position: fixed;
-  top: calc(var(--header-h) + 10px);
-  left: 50%; transform: translateX(-50%) translateY(-8px);
-  background: var(--ink); color: var(--white);
-  padding: 9px 16px; border-radius: 20px;
-  font-size: 13px; opacity: 0;
-  transition: all .25s; pointer-events: none;
-  z-index: 200; white-space: nowrap;
+  position:fixed; top:66px; left:50%;
+  transform:translateX(-50%) translateY(-8px);
+  background:var(--ink); color:var(--white);
+  padding:9px 16px; border-radius:20px;
+  font-size:13px; opacity:0;
+  transition:all .25s; pointer-events:none;
+  z-index:999; white-space:nowrap;
 }
-.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.on { opacity:1; transform:translateX(-50%) translateY(0); }
 </style>
 </head>
 <body>
  
-<header>
-  <div class="logo-mark">L</div>
+<!-- HEADER -->
+<div class="header">
+  <div class="logo">L</div>
   <div class="header-title">
     <h1>Lis</h1>
-    <span>conselheira financeira</span>
+    <p>conselheira financeira</p>
   </div>
-  <div style="display:flex;gap:6px">
-    <div class="hm-pill" id="hm-receita">R$ 0</div>
-    <div class="hm-pill green" id="hm-lucro">lucro R$ 0</div>
+  <div style="display:flex;gap:6px;flex-shrink:0">
+    <div class="pill" id="hm-rec">R$ 0</div>
+    <div class="pill g" id="hm-luc">lucro R$ 0</div>
   </div>
-</header>
+</div>
  
-<div class="app">
+<!-- VIEWS -->
  
-  <!-- CHAT -->
-  <div class="view active" id="view-chat">
-    <div class="messages" id="messages"></div>
-    <div class="quick-replies" id="quick-replies"></div>
-    <div class="chat-input-wrap">
-      <textarea class="chat-input" id="chat-input" rows="1"
-        placeholder="Pergunte algo para a Lis…"
-        onkeydown="handleKey(event)"
-        oninput="autoResize(this)"></textarea>
-      <button class="send-btn" onclick="sendMessage()">
-        <svg viewBox="0 0 24 24"><path d="M2 21L23 12L2 3V10L17 12L2 14V21Z"/></svg>
-      </button>
-    </div>
+<!-- CHAT -->
+<div class="view active" id="view-chat">
+  <div class="messages" id="msgs"></div>
+  <div class="qr-wrap" id="qrs"></div>
+  <div class="input-wrap">
+    <textarea class="chat-input" id="inp" rows="1"
+      placeholder="Pergunte algo para a Lis…"
+      oninput="resize(this)"
+      onkeydown="onKey(event)"></textarea>
+    <button class="send" onclick="send()">
+      <svg viewBox="0 0 24 24"><path d="M2 21L23 12L2 3V10L17 12L2 14V21Z"/></svg>
+    </button>
   </div>
+</div>
  
-  <!-- INSUMOS -->
-  <div class="view" id="view-insumos">
-    <div class="form-view">
-      <h2>Insumos</h2>
-      <p>Cadastre seus produtos. O custo por unidade será calculado automaticamente.</p>
+<!-- REGISTRAR -->
+<div class="view" id="view-registrar">
+  <div class="form-body">
+    <h2>Registrar atendimento</h2>
+    <p>Informe o procedimento e a Lis calcula o custo real automaticamente.</p>
  
-      <div class="form-section">
-        <h3>Novo insumo</h3>
-        <div class="form-group">
-          <label>Nome do produto</label>
-          <input type="text" id="ins-nome" placeholder="Ex: Toxina botulínica 100U">
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Custo total (R$)</label>
-            <input type="number" inputmode="decimal" id="ins-custo" placeholder="350">
-          </div>
-          <div class="form-group">
-            <label>Quantidade</label>
-            <input type="number" inputmode="numeric" id="ins-qtd" placeholder="100">
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Unidade</label>
-          <select id="ins-unidade">
-            <option value="U">Unidades (U) — toxina</option>
-            <option value="ml">Mililitros (ml)</option>
-            <option value="g">Gramas (g)</option>
-            <option value="fio">Fios</option>
-            <option value="ampola">Ampolas</option>
-            <option value="dose">Doses</option>
-          </select>
-        </div>
-        <button class="btn-primary" onclick="cadastrarInsumo()">Adicionar insumo</button>
+    <div class="card">
+      <h3>Dados</h3>
+      <div class="fg">
+        <label>Procedimento</label>
+        <input type="text" id="at-proc" placeholder="Ex: Harmonização facial">
       </div>
- 
-      <div class="form-section">
-        <h3>Cowork e metas</h3>
-        <div class="form-group">
-          <label>Mensalidade do cowork (R$)</label>
-          <input type="number" inputmode="decimal" id="cfg-mens" placeholder="1200">
+      <div class="row">
+        <div class="fg">
+          <label>Valor cobrado (R$)</label>
+          <input type="number" inputmode="decimal" id="at-val" placeholder="600" oninput="preview()">
         </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Horas incluídas/mês</label>
-            <input type="number" inputmode="numeric" id="cfg-horas-mes" placeholder="80">
-          </div>
-          <div class="form-group">
-            <label>Hora extra (R$)</label>
-            <input type="number" inputmode="decimal" id="cfg-hora-extra" placeholder="35">
-          </div>
+        <div class="fg">
+          <label>Duração (h)</label>
+          <input type="number" inputmode="decimal" id="at-h" placeholder="1.5" step="0.5" oninput="preview()">
         </div>
-        <div class="form-group">
-          <label>Meta de renda mensal (R$)</label>
-          <input type="number" inputmode="decimal" id="cfg-meta-renda" placeholder="8000">
-        </div>
-        <div class="form-group">
-          <label>Horas que quer trabalhar/mês</label>
-          <input type="number" inputmode="numeric" id="cfg-horas-trabalho" placeholder="120">
-        </div>
-        <button class="btn-primary" onclick="salvarConfig()">Salvar configuração</button>
       </div>
     </div>
-  </div>
  
-  <!-- REGISTRAR -->
-  <div class="view" id="view-registrar">
-    <div class="form-view">
-      <h2>Registrar atendimento</h2>
-      <p>Informe o procedimento e a Lis calcula o custo real automaticamente.</p>
+    <div class="card">
+      <h3>Insumos utilizados</h3>
+      <div id="ins-campos"></div>
+      <button class="btn-add" onclick="addCampo()">+ Adicionar insumo usado</button>
+    </div>
  
-      <div class="form-section">
-        <h3>Dados</h3>
-        <div class="form-group">
-          <label>Procedimento</label>
-          <input type="text" id="at-proc" placeholder="Ex: Harmonização facial">
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Valor cobrado (R$)</label>
-            <input type="number" inputmode="decimal" id="at-cobrado" placeholder="600" oninput="recalcPreview()">
-          </div>
-          <div class="form-group">
-            <label>Duração (h)</label>
-            <input type="number" inputmode="decimal" id="at-horas" placeholder="1.5" step="0.5" oninput="recalcPreview()">
-          </div>
-        </div>
-      </div>
+    <button class="btn" onclick="registrar(false)">Calcular e registrar</button>
  
-      <div class="form-section">
-        <h3>Insumos utilizados</h3>
-        <div id="at-insumos-lista"></div>
-        <button class="btn-add-insumo" onclick="addInsumoCampo()">+ Adicionar insumo usado</button>
-      </div>
- 
-      <button class="btn-primary" onclick="registrarAtendimento(false)">Calcular e registrar</button>
- 
-      <div class="calc-result" id="calc-result">
-        <h3>Análise do atendimento</h3>
-        <div class="calc-row"><span class="lbl">Insumos</span><span class="val-bad" id="cr-insumos">—</span></div>
-        <div class="calc-row"><span class="lbl">Cowork rateado</span><span class="val-bad" id="cr-cowork">—</span></div>
-        <div class="calc-row"><span class="lbl">Custo do seu tempo</span><span class="val-bad" id="cr-tempo">—</span></div>
-        <div class="calc-row total"><span class="lbl">Custo total</span><span class="val-bold" id="cr-total">—</span></div>
-        <div class="calc-row"><span class="lbl">Você cobrou</span><span class="val-bold" id="cr-cobrado">—</span></div>
-        <div class="calc-row"><span class="lbl">Lucro líquido</span><span class="val-good" id="cr-lucro">—</span></div>
-        <div class="calc-row"><span class="lbl">Margem</span><span class="val-good" id="cr-margem">—</span></div>
-        <div id="cr-alerta" class="alerta ok" style="display:none"></div>
-      </div>
+    <div class="result" id="result">
+      <h3>Análise do atendimento</h3>
+      <div class="rrow"><span class="lbl">Insumos</span><span class="vbad" id="r-ins">—</span></div>
+      <div class="rrow"><span class="lbl">Cowork rateado</span><span class="vbad" id="r-cw">—</span></div>
+      <div class="rrow"><span class="lbl">Custo do seu tempo</span><span class="vbad" id="r-tm">—</span></div>
+      <div class="rrow tot"><span class="lbl">Custo total</span><span class="vbold" id="r-tot">—</span></div>
+      <div class="rrow"><span class="lbl">Você cobrou</span><span class="vbold" id="r-cob">—</span></div>
+      <div class="rrow"><span class="lbl">Lucro líquido</span><span class="vgood" id="r-luc">—</span></div>
+      <div class="rrow"><span class="lbl">Margem</span><span class="vgood" id="r-mg">—</span></div>
+      <div id="r-alert" class="alert ok" style="display:none"></div>
     </div>
   </div>
+</div>
  
-  <!-- DASHBOARD -->
-  <div class="view" id="view-dash">
-    <div class="dash-view">
-      <div class="dash-grid">
-        <div class="dash-card">
-          <div class="dc-label">Receita</div>
-          <div class="dc-value green" id="d-receita">R$ 0</div>
-          <div class="dc-sub" id="d-natend">0 atend.</div>
+<!-- INSUMOS -->
+<div class="view" id="view-insumos">
+  <div class="form-body">
+    <h2>Insumos</h2>
+    <p>Cadastre seus produtos. O custo por unidade é calculado automaticamente.</p>
+ 
+    <div class="card">
+      <h3>Novo insumo</h3>
+      <div class="fg">
+        <label>Nome do produto</label>
+        <input type="text" id="i-nome" placeholder="Ex: Toxina botulínica 100U">
+      </div>
+      <div class="row">
+        <div class="fg">
+          <label>Custo total (R$)</label>
+          <input type="number" inputmode="decimal" id="i-cus" placeholder="350">
         </div>
-        <div class="dash-card">
-          <div class="dc-label">Custos</div>
-          <div class="dc-value orange" id="d-custo">R$ 0</div>
-          <div class="dc-sub">insumos + cowork</div>
-        </div>
-        <div class="dash-card">
-          <div class="dc-label">Lucro líquido</div>
-          <div class="dc-value" id="d-lucro" style="color:var(--ink-soft)">R$ 0</div>
-          <div class="dc-sub" id="d-margem">margem —</div>
-        </div>
-        <div class="dash-card">
-          <div class="dc-label">Sua hora vale</div>
-          <div class="dc-value" id="d-hora" style="font-size:17px;color:var(--rose-deep)">—</div>
-          <div class="dc-sub">pela sua meta</div>
+        <div class="fg">
+          <label>Quantidade</label>
+          <input type="number" inputmode="numeric" id="i-qtd" placeholder="100">
         </div>
       </div>
+      <div class="fg">
+        <label>Unidade</label>
+        <select id="i-un">
+          <option value="U">Unidades (U) — toxina</option>
+          <option value="ml">Mililitros (ml)</option>
+          <option value="g">Gramas (g)</option>
+          <option value="fio">Fios</option>
+          <option value="ampola">Ampolas</option>
+          <option value="dose">Doses</option>
+        </select>
+      </div>
+      <button class="btn" onclick="addInsumo()">Adicionar insumo</button>
+    </div>
  
-      <div class="dash-section">
-        <div class="dash-section-title">Meta mensal</div>
-        <div class="meta-bar-wrap">
-          <div class="meta-bar-label">
-            <span id="d-meta-label">—</span>
-            <span id="d-meta-pct">0%</span>
-          </div>
-          <div class="meta-bar-bg"><div class="meta-bar-fill" id="d-meta-bar" style="width:0%"></div></div>
-          <div class="meta-hint" id="d-meta-hint"></div>
+    <div class="card">
+      <h3>Cowork e metas</h3>
+      <div class="fg">
+        <label>Mensalidade do cowork (R$)</label>
+        <input type="number" inputmode="decimal" id="c-mens" placeholder="1200">
+      </div>
+      <div class="row">
+        <div class="fg">
+          <label>Horas incluídas/mês</label>
+          <input type="number" inputmode="numeric" id="c-hm" placeholder="80">
+        </div>
+        <div class="fg">
+          <label>Hora extra (R$)</label>
+          <input type="number" inputmode="decimal" id="c-he" placeholder="35">
         </div>
       </div>
- 
-      <div class="dash-section">
-        <div class="dash-section-title">Insumos cadastrados</div>
-        <div id="d-insumos-lista"><div class="empty-state"><div class="empty-icon">🧴</div>Nenhum insumo ainda</div></div>
+      <div class="fg">
+        <label>Meta de renda mensal (R$)</label>
+        <input type="number" inputmode="decimal" id="c-meta" placeholder="8000">
       </div>
- 
-      <div class="dash-section">
-        <div class="dash-section-title">Atendimentos</div>
-        <div id="d-atend-lista"><div class="empty-state"><div class="empty-icon">📋</div>Nenhum atendimento registrado</div></div>
+      <div class="fg">
+        <label>Horas que quer trabalhar/mês</label>
+        <input type="number" inputmode="numeric" id="c-ht" placeholder="120">
       </div>
+      <button class="btn" onclick="salvarCfg()">Salvar configuração</button>
     </div>
   </div>
+</div>
  
+<!-- DASHBOARD -->
+<div class="view" id="view-dash">
+  <div class="dash-body">
+    <div class="dash-grid">
+      <div class="dc"><div class="dl">Receita</div><div class="dv g" id="d-rec">R$ 0</div><div class="ds" id="d-nat">0 atend.</div></div>
+      <div class="dc"><div class="dl">Custos</div><div class="dv o" id="d-cus">R$ 0</div><div class="ds">insumos + cowork</div></div>
+      <div class="dc"><div class="dl">Lucro líquido</div><div class="dv" id="d-luc" style="color:var(--ink-soft)">R$ 0</div><div class="ds" id="d-mg">margem —</div></div>
+      <div class="dc"><div class="dl">Sua hora vale</div><div class="dv" id="d-hora" style="font-size:17px;color:var(--rose-deep)">—</div><div class="ds">pela sua meta</div></div>
+    </div>
+ 
+    <div class="section">
+      <div class="stitle">Meta mensal</div>
+      <div class="bar-wrap">
+        <div class="bar-labels"><span id="d-ml">—</span><span id="d-mp">0%</span></div>
+        <div class="bar-bg"><div class="bar-fill" id="d-mb" style="width:0%"></div></div>
+        <div class="bar-hint" id="d-mh"></div>
+      </div>
+    </div>
+ 
+    <div class="section">
+      <div class="stitle">Insumos cadastrados</div>
+      <div id="d-ins"><div class="empty"><div class="ei">🧴</div>Nenhum insumo ainda</div></div>
+    </div>
+ 
+    <div class="section">
+      <div class="stitle">Atendimentos</div>
+      <div id="d-at"><div class="empty"><div class="ei">📋</div>Nenhum atendimento registrado</div></div>
+    </div>
+  </div>
 </div>
  
 <!-- BOTTOM NAV -->
 <nav class="bottom-nav">
-  <button class="nav-btn active" id="nav-chat" onclick="showView('chat')">
+  <button class="nav-btn active" id="nb-chat" onclick="goTo('chat')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
     Chat
   </button>
-  <button class="nav-btn" id="nav-registrar" onclick="showView('registrar')">
+  <button class="nav-btn" id="nb-registrar" onclick="goTo('registrar')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
     Registrar
   </button>
-  <button class="nav-btn" id="nav-insumos" onclick="showView('insumos')">
+  <button class="nav-btn" id="nb-insumos" onclick="goTo('insumos')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg>
     Insumos
   </button>
-  <button class="nav-btn" id="nav-dash" onclick="showView('dash')">
+  <button class="nav-btn" id="nb-dash" onclick="goTo('dash')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
     Resumo
   </button>
@@ -625,321 +566,379 @@ header {
 <div class="toast" id="toast"></div>
  
 <script>
-const S = {
-  config: { mensalidade:0, horasMes:80, horaExtra:0, metaRenda:0, horasTrabalho:120, horaCusto:0, horaProf:0 },
-  insumos: [],
-  atendimentos: [],
+// ── ESTADO ──
+var S = {
+  cfg: { mens:0, hm:80, he:0, meta:0, ht:120, hcw:0, hpro:0 },
+  ins: [],
+  ats: [],
   step: 0,
-  onboarding: true
+  ob: true
 };
  
-const OB = [
+// ── ONBOARDING ──
+var OB = [
   {
     msg: "Olá! 🌸 Sou a Lis, sua conselheira financeira.\n\nVou te ajudar a entender o custo real de cada procedimento e cobrar com segurança.\n\nQual é sua meta de renda líquida por mês?",
     qr: ["R$ 5.000","R$ 8.000","R$ 12.000","R$ 15.000+"],
-    fn: v => { S.config.metaRenda = +v.replace(/\D/g,'')||8000; }
+    fn: function(v){ S.cfg.meta = parseInt(v.replace(/\D/g,''))||8000; }
   },
   {
-    msg: () => `Meta de ${fmt(S.config.metaRenda)}/mês — ótimo! 👏\n\nQuantas horas por mês você quer trabalhar?`,
+    msg: function(){ return "Meta de "+fmt(S.cfg.meta)+"/mês — ótimo! 👏\n\nQuantas horas por mês você quer trabalhar?"; },
     qr: ["80h","100h","120h","160h"],
-    fn: v => { S.config.horasTrabalho = parseInt(v)||120; calcConfig(); }
+    fn: function(v){ S.cfg.ht = parseInt(v)||120; calc(); }
   },
   {
-    msg: () => `Sua hora vale **${fmt(S.config.horaProf)}** — esse valor entra no custo de cada procedimento.\n\nQual é a mensalidade do seu cowork?`,
+    msg: function(){ return "Sua hora vale **"+fmt(S.cfg.hpro)+"** — esse valor entra no custo de cada procedimento.\n\nQual é a mensalidade do seu cowork?"; },
     qr: ["Não tenho mensalidade","R$ 800","R$ 1.200","R$ 1.500","R$ 2.000"],
-    fn: v => { S.config.mensalidade = v==="Não tenho mensalidade"?0:(+v.replace(/\D/g,'')||0); calcConfig(); }
+    fn: function(v){ S.cfg.mens = v==="Não tenho mensalidade" ? 0 : (parseInt(v.replace(/\D/g,''))||0); calc(); }
   },
   {
-    msg: () => `Entendido! E a hora extra no cowork (além do plano)?`,
-    qr: ["Não uso","R$ 20/h","R$ 30/h","R$ 40/h","R$ 50/h"],
-    fn: v => { S.config.horaExtra = v==="Não uso"?0:(parseInt(v)||0); calcConfig(); updateDash(); }
+    msg: function(){ return "Entendido! E a hora extra no cowork (além do plano mensal)?"; },
+    qr: ["Não uso hora extra","R$ 20/h","R$ 30/h","R$ 40/h","R$ 50/h"],
+    fn: function(v){ S.cfg.he = v==="Não uso hora extra" ? 0 : (parseInt(v)||0); calc(); upDash(); }
   },
   {
-    msg: () => `Configuração salva! ✅\n\nAgora vamos cadastrar seus insumos. Use a aba **Insumos** para adicionar seus produtos com custo e quantidade.`,
+    msg: function(){ return "Configuração salva! ✅\n\nAgora use a aba **Insumos** para cadastrar seus produtos com custo e quantidade."; },
     qr: ["Ir para Insumos","Pular por agora"],
-    fn: v => { if(v==="Ir para Insumos") showView('insumos'); }
+    fn: function(v){ if(v==="Ir para Insumos") goTo('insumos'); }
   },
   {
-    msg: () => `Pronto! Agora pode me perguntar:\n• "Calcular harmonização 1h, cobrei R$600, 40U toxina"\n• "Qual meu lucro do mês?"\n• "Procedimento mais lucrativo?"\n\nOu use os botões abaixo. 💪`,
+    msg: function(){ return "Pronto! Agora pode me perguntar:\n• \"Calcular harmonização 1h, cobrei R$600\"\n• \"Qual meu lucro do mês?\"\n• \"Procedimento mais lucrativo?\"\n\nOu use os botões abaixo. 💪"; },
     qr: ["Registrar atendimento","Ver resumo financeiro"],
-    fn: v => { S.onboarding=false; if(v==="Registrar atendimento") showView('registrar'); else showView('dash'); }
+    fn: function(v){ S.ob=false; if(v==="Registrar atendimento") goTo('registrar'); else goTo('dash'); }
   }
 ];
  
+// ── UTILS ──
 function fmt(v){ return 'R$ '+parseFloat(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function calc(){
+  S.cfg.hpro = S.cfg.ht>0 ? S.cfg.meta/S.cfg.ht : 0;
+  S.cfg.hcw  = S.cfg.hm>0 ? S.cfg.mens/S.cfg.hm  : 0;
+}
+function cwCost(h){ return (S.cfg.hcw||0)*h; }
  
-function calcConfig(){
-  S.config.horaProf = S.config.horasTrabalho>0 ? S.config.metaRenda/S.config.horasTrabalho : 0;
-  S.config.horaCusto = S.config.horasMes>0 ? S.config.mensalidade/S.config.horasMes : 0;
+function toast(msg){
+  var t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('on');
+  setTimeout(function(){ t.classList.remove('on'); },2200);
 }
  
-function showToast(msg){
-  const t=document.getElementById('toast');
-  t.textContent=msg; t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2200);
-}
- 
-function addMsg(role,text){
-  const el=document.getElementById('messages');
-  const d=document.createElement('div');
+// ── CHAT ──
+function addMsg(role, text){
+  var el=document.getElementById('msgs');
+  var d=document.createElement('div');
   d.className='msg '+role;
-  d.innerHTML=`<div class="msg-avatar">${role==='agent'?'L':'Eu'}</div><div class="msg-bubble">${text.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>')}</div>`;
+  var av=role==='agent'?'L':'Eu';
+  d.innerHTML='<div class="av">'+av+'</div><div class="bubble">'+text.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>')+'</div>';
   el.appendChild(d);
-  el.scrollTop=el.scrollHeight;
+  // scroll suave para o fim
+  setTimeout(function(){ el.scrollTop=el.scrollHeight; window.scrollTo(0, document.body.scrollHeight); },50);
 }
  
 function setQR(opts){
-  const el=document.getElementById('quick-replies');
+  var el=document.getElementById('qrs');
   el.innerHTML='';
-  opts.forEach(o=>{
-    const b=document.createElement('button');
-    b.className='qr-btn'; b.textContent=o;
-    b.onclick=()=>{ el.innerHTML=''; sendMessage(o); };
+  opts.forEach(function(o){
+    var b=document.createElement('button');
+    b.className='qr'; b.textContent=o;
+    b.onclick=function(){ el.innerHTML=''; send(o); };
     el.appendChild(b);
   });
 }
  
-function showTyping(cb,ms=800){
-  const el=document.getElementById('messages');
-  const d=document.createElement('div');
+function showTyping(cb, ms){
+  ms = ms||800;
+  var el=document.getElementById('msgs');
+  var d=document.createElement('div');
   d.className='msg agent'; d.id='typ';
-  d.innerHTML=`<div class="msg-avatar">L</div><div class="msg-bubble"><div class="typing"><span></span><span></span><span></span></div></div>`;
-  el.appendChild(d); el.scrollTop=el.scrollHeight;
-  setTimeout(()=>{ d.remove(); cb(); },ms);
+  d.innerHTML='<div class="av">L</div><div class="bubble"><div class="typing"><span></span><span></span><span></span></div></div>';
+  el.appendChild(d);
+  el.scrollTop=el.scrollHeight;
+  setTimeout(function(){ var t=document.getElementById('typ'); if(t) t.remove(); cb(); }, ms);
 }
  
-function handleKey(e){ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendMessage(); } }
-function autoResize(el){ el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,100)+'px'; }
- 
-function sendMessage(override){
-  const inp=document.getElementById('chat-input');
-  const text=override||inp.value.trim();
-  if(!text) return;
-  inp.value=''; inp.style.height='auto';
-  document.getElementById('quick-replies').innerHTML='';
-  addMsg('user',text);
-  S.onboarding ? handleOnboarding(text) : handleFreeChat(text);
+function resize(el){
+  el.style.height='auto';
+  el.style.height=Math.min(el.scrollHeight,100)+'px';
 }
  
-function handleOnboarding(text){
-  OB[S.step].fn(text); S.step++;
-  if(S.step<OB.length){
-    const n=OB[S.step];
-    const msg=typeof n.msg==='function'?n.msg():n.msg;
-    showTyping(()=>{ addMsg('agent',msg); setQR(n.qr); });
-  }
+function onKey(e){
+  if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); send(); }
 }
  
-function handleFreeChat(text){
-  const l=text.toLowerCase();
- 
-  if(l.includes('lucro')||l.includes('resumo')||l.includes('mês')||l.includes('mes')||l.includes('faturei')){
-    const rec=S.atendimentos.reduce((s,a)=>s+a.cobrado,0);
-    const cus=S.atendimentos.reduce((s,a)=>s+a.custoTotal,0);
-    const luc=rec-cus; const n=S.atendimentos.length;
-    showTyping(()=>{
-      if(!n){ addMsg('agent','Nenhum atendimento registrado ainda. Registre o primeiro para ver o resumo! 📊'); setQR(['Registrar atendimento']); return; }
-      const mg=rec>0?(luc/rec*100):0;
-      addMsg('agent',`📊 **Resumo do mês:**\n${n} atendimentos — Receita: **${fmt(rec)}**\nCustos: ${fmt(cus)}\n\n💰 **Lucro: ${fmt(luc)}** (margem ${mg.toFixed(0)}%)\n\n${luc>=S.config.metaRenda?'✅ Meta batida! Parabéns!':'⚠️ Faltam '+fmt(S.config.metaRenda-luc)+' para a meta.'}`);
-      setQR(['Registrar atendimento','Procedimento mais lucrativo']);
-    });
-    return;
-  }
- 
-  if(l.includes('lucrativo')||l.includes('melhor')){
-    if(!S.atendimentos.length){ showTyping(()=>{ addMsg('agent','Sem atendimentos ainda. Registre alguns para ver a análise!'); setQR(['Registrar atendimento']); }); return; }
-    const g={}; S.atendimentos.forEach(a=>{ (g[a.proc]=g[a.proc]||[]).push(a.margem); });
-    let best='',bm=-999;
-    Object.entries(g).forEach(([p,ms])=>{ const avg=ms.reduce((s,v)=>s+v,0)/ms.length; if(avg>bm){bm=avg;best=p;} });
-    showTyping(()=>{ addMsg('agent',`🏆 Seu procedimento mais lucrativo é **${best}** com margem média de **${bm.toFixed(0)}%**!\n\nConsidere priorizar esse na agenda.`); setQR(['Ver resumo','Registrar atendimento']); });
-    return;
-  }
- 
-  if(l.includes('calcul')||l.includes('cobrei')||l.includes('custou')){
-    const cobrado=extractNum(text,['cobrei','cobrado','r$']);
-    const horas=extractNum(text,['hora','h'])||1;
-    let insC=0;
-    S.insumos.forEach(i=>{ const re=new RegExp(`(\\d+(?:[,.]\\d+)?)\\s*(?:${i.unidade})?\\s*(?:de\\s+)?${i.nome.split(' ')[0]}`,'i'); const m=text.match(re); if(m) insC+=parseFloat(m[1].replace(',','.'))*i.cpU; });
-    const cw=(S.config.horaCusto||0)*horas;
-    const ct=(S.config.horaProf||0)*horas;
-    const total=insC+cw+ct;
-    const lucro=cobrado-total;
-    const mg=cobrado>0?(lucro/cobrado*100):0;
-    showTyping(()=>{
-      addMsg('agent',`💊 Insumos: ${fmt(insC)}\n🏢 Cowork: ${fmt(cw)}\n⏱ Seu tempo: ${fmt(ct)}\n\n**Custo total: ${fmt(total)}**\n\nVocê cobrou: ${fmt(cobrado)}\n💰 **Lucro: ${fmt(lucro)}** (${mg.toFixed(0)}%)\n\n${mg<20?'⚠️ Margem baixa! Sugestão: '+fmt(total*1.5):mg>=40?'✅ Ótima margem!':'🟡 Razoável. Ideal acima de 40%.'}`);
-      setQR(['Registrar atendimento','Calcular outro','Ver resumo do mês']);
-    });
-    return;
-  }
- 
-  callClaude(text);
+function send(override){
+  try {
+    var inp=document.getElementById('inp');
+    var text=override||inp.value.trim();
+    if(!text) return;
+    inp.value=''; inp.style.height='auto';
+    document.getElementById('qrs').innerHTML='';
+    addMsg('user',text);
+    if(S.ob) handleOB(text); else freeChat(text);
+  } catch(e) { console.error(e); }
 }
  
-async function callClaude(text){
-  const ins=S.insumos.map(i=>`${i.nome}: ${fmt(i.cpU)}/${i.unidade}`).join(', ')||'nenhum';
-  showTyping(async ()=>{
-    try{
-      const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:600,system:`Você é Lis, conselheira financeira para biomédicas esteticistas. Responda em português, caloroso, direto, máx 3 parágrafos curtos. Config: mensalidade R$${S.config.mensalidade}, hora cowork R$${(S.config.horaCusto||0).toFixed(2)}, hora profissional R$${(S.config.horaProf||0).toFixed(2)}, meta R$${S.config.metaRenda}. Insumos: ${ins}. Atendimentos este mês: ${S.atendimentos.length}.`,messages:[{role:"user",content:text}]})});
-      const d=await r.json();
-      addMsg('agent',d.content?.[0]?.text||'Não entendi. Pode reformular?');
-      setQR(['Calcular procedimento','Ver lucro do mês','Registrar atendimento']);
-    }catch{
-      addMsg('agent','Problemas de conexão. Posso te ajudar com: calcular custo de procedimento, ver lucro do mês ou registrar atendimento!');
+function handleOB(text){
+  try {
+    var step=OB[S.step];
+    step.fn(text);
+    S.step++;
+    if(S.step<OB.length){
+      var n=OB[S.step];
+      var msg=typeof n.msg==='function' ? n.msg() : n.msg;
+      showTyping(function(){ addMsg('agent',msg); setQR(n.qr); });
+    }
+  } catch(e){ console.error(e); }
+}
+ 
+// ── CHAT LIVRE ──
+function freeChat(text){
+  try {
+    var l=text.toLowerCase();
+ 
+    if(l.indexOf('lucro')>=0||l.indexOf('resumo')>=0||l.indexOf('mês')>=0||l.indexOf('mes')>=0||l.indexOf('faturei')>=0){
+      var rec=S.ats.reduce(function(s,a){return s+a.val;},0);
+      var cus=S.ats.reduce(function(s,a){return s+a.tot;},0);
+      var luc=rec-cus; var n=S.ats.length;
+      showTyping(function(){
+        if(!n){ addMsg('agent','Nenhum atendimento registrado ainda. Registre o primeiro para ver o resumo! 📊'); setQR(['Registrar atendimento']); return; }
+        var mg=rec>0?(luc/rec*100):0;
+        addMsg('agent','📊 **Resumo do mês:**\n'+n+' atendimentos — Receita: **'+fmt(rec)+'**\nCustos: '+fmt(cus)+'\n\n💰 **Lucro: '+fmt(luc)+'** (margem '+mg.toFixed(0)+'%)\n\n'+(luc>=S.cfg.meta?'✅ Meta batida! Parabéns!':'⚠️ Faltam '+fmt(S.cfg.meta-luc)+' para a meta.'));
+        setQR(['Registrar atendimento','Procedimento mais lucrativo']);
+      });
+      return;
+    }
+ 
+    if(l.indexOf('lucrativ')>=0||l.indexOf('melhor')>=0){
+      if(!S.ats.length){ showTyping(function(){ addMsg('agent','Sem atendimentos ainda. Registre alguns para ver a análise!'); setQR(['Registrar atendimento']); }); return; }
+      var g={}; S.ats.forEach(function(a){ if(!g[a.proc]) g[a.proc]=[]; g[a.proc].push(a.mg); });
+      var best='',bm=-999;
+      Object.keys(g).forEach(function(p){ var avg=g[p].reduce(function(s,v){return s+v;},0)/g[p].length; if(avg>bm){bm=avg;best=p;} });
+      showTyping(function(){ addMsg('agent','🏆 Seu procedimento mais lucrativo é **'+best+'** com margem média de **'+bm.toFixed(0)+'%**!\n\nConsidere priorizar esse na agenda.'); setQR(['Ver resumo','Registrar atendimento']); });
+      return;
+    }
+ 
+    if(l.indexOf('calcul')>=0||l.indexOf('cobrei')>=0||l.indexOf('custou')>=0){
+      var cobrado=exNum(text,['cobrei','cobrado','r$']);
+      var horas=exNum(text,['hora','h'])||1;
+      var insC=0;
+      S.ins.forEach(function(i){ var re=new RegExp('(\\d+(?:[,.]\\d+)?)\\s*(?:'+i.un+')?\\s*(?:de\\s+)?'+i.nome.split(' ')[0],'i'); var m=text.match(re); if(m) insC+=parseFloat(m[1].replace(',','.'))*i.cpu; });
+      var cw=cwCost(horas);
+      var ct=(S.cfg.hpro||0)*horas;
+      var tot=insC+cw+ct;
+      var luc=cobrado-tot;
+      var mg=cobrado>0?(luc/cobrado*100):0;
+      showTyping(function(){
+        addMsg('agent','💊 Insumos: '+fmt(insC)+'\n🏢 Cowork: '+fmt(cw)+'\n⏱ Seu tempo: '+fmt(ct)+'\n\n**Custo total: '+fmt(tot)+'**\n\nVocê cobrou: '+fmt(cobrado)+'\n💰 **Lucro: '+fmt(luc)+'** ('+mg.toFixed(0)+'%)\n\n'+(mg<20?'⚠️ Margem baixa! Sugestão: '+fmt(tot*1.5):mg>=40?'✅ Ótima margem!':'🟡 Razoável. Ideal acima de 40%.'));
+        setQR(['Registrar atendimento','Calcular outro','Ver resumo do mês']);
+      });
+      return;
+    }
+ 
+    callAI(text);
+  } catch(e){ console.error(e); }
+}
+ 
+function callAI(text){
+  var ins=S.ins.map(function(i){return i.nome+': '+fmt(i.cpu)+'/'+i.un;}).join(', ')||'nenhum';
+  showTyping(function(){
+    try {
+      fetch("https://api.anthropic.com/v1/messages",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({
+          model:"claude-sonnet-4-20250514",max_tokens:600,
+          system:"Você é Lis, conselheira financeira para biomédicas esteticistas. Responda em português, caloroso, direto, máx 3 parágrafos curtos. Meta: R$"+S.cfg.meta+". Insumos: "+ins+". Atendimentos: "+S.ats.length+".",
+          messages:[{role:"user",content:text}]
+        })
+      }).then(function(r){ return r.json(); }).then(function(d){
+        addMsg('agent',(d.content&&d.content[0]&&d.content[0].text)||'Não entendi. Pode reformular?');
+        setQR(['Calcular procedimento','Ver lucro do mês','Registrar atendimento']);
+      }).catch(function(){
+        addMsg('agent','Sem conexão agora. Posso te ajudar com: calcular custo, ver lucro do mês ou registrar atendimento!');
+        setQR(['Calcular procedimento','Ver lucro do mês']);
+      });
+    } catch(e){
+      addMsg('agent','Posso te ajudar com: calcular custo de procedimento, ver lucro do mês ou registrar atendimento!');
       setQR(['Calcular procedimento','Ver lucro do mês']);
     }
   },600);
 }
  
-function cadastrarInsumo(){
-  const nome=document.getElementById('ins-nome').value.trim();
-  const custo=parseFloat(document.getElementById('ins-custo').value)||0;
-  const qtd=parseFloat(document.getElementById('ins-qtd').value)||0;
-  const un=document.getElementById('ins-unidade').value;
-  if(!nome||!custo||!qtd){ showToast('Preencha todos os campos'); return; }
-  S.insumos.push({nome,custo,qtd,unidade:un,cpU:custo/qtd});
-  document.getElementById('ins-nome').value='';
-  document.getElementById('ins-custo').value='';
-  document.getElementById('ins-qtd').value='';
-  updateDash(); showToast('✅ '+nome+' cadastrado!');
-  showView('chat');
-  addMsg('agent',`✅ **${nome}** adicionado!\nCusto por ${un}: **${fmt(custo/qtd)}**`);
-  setQR(['Cadastrar outro','Registrar atendimento']);
+// ── INSUMOS ──
+function addInsumo(){
+  try {
+    var nome=document.getElementById('i-nome').value.trim();
+    var cus=parseFloat(document.getElementById('i-cus').value)||0;
+    var qtd=parseFloat(document.getElementById('i-qtd').value)||0;
+    var un=document.getElementById('i-un').value;
+    if(!nome||!cus||!qtd){ toast('Preencha todos os campos'); return; }
+    S.ins.push({nome:nome,cus:cus,qtd:qtd,un:un,cpu:cus/qtd});
+    document.getElementById('i-nome').value='';
+    document.getElementById('i-cus').value='';
+    document.getElementById('i-qtd').value='';
+    upDash(); toast('✅ '+nome+' cadastrado!');
+    goTo('chat');
+    addMsg('agent','✅ **'+nome+'** adicionado!\nCusto por '+un+': **'+fmt(cus/qtd)+'**');
+    setQR(['Cadastrar outro','Registrar atendimento']);
+  } catch(e){ console.error(e); }
 }
  
-function salvarConfig(){
-  S.config.mensalidade=parseFloat(document.getElementById('cfg-mens').value)||0;
-  S.config.horasMes=parseFloat(document.getElementById('cfg-horas-mes').value)||80;
-  S.config.horaExtra=parseFloat(document.getElementById('cfg-hora-extra').value)||0;
-  S.config.metaRenda=parseFloat(document.getElementById('cfg-meta-renda').value)||0;
-  S.config.horasTrabalho=parseFloat(document.getElementById('cfg-horas-trabalho').value)||120;
-  calcConfig(); updateDash(); showToast('✅ Configuração salva!');
-  showView('chat');
-  addMsg('agent',`✅ Configuração atualizada!\nSua hora: **${fmt(S.config.horaProf)}** | Cowork/hora: **${fmt(S.config.horaCusto)}**`);
+function salvarCfg(){
+  try {
+    S.cfg.mens=parseFloat(document.getElementById('c-mens').value)||0;
+    S.cfg.hm=parseFloat(document.getElementById('c-hm').value)||80;
+    S.cfg.he=parseFloat(document.getElementById('c-he').value)||0;
+    S.cfg.meta=parseFloat(document.getElementById('c-meta').value)||0;
+    S.cfg.ht=parseFloat(document.getElementById('c-ht').value)||120;
+    calc(); upDash(); toast('✅ Configuração salva!');
+    goTo('chat');
+    addMsg('agent','✅ Configuração atualizada!\nSua hora: **'+fmt(S.cfg.hpro)+'** | Cowork/hora: **'+fmt(S.cfg.hcw)+'**');
+  } catch(e){ console.error(e); }
 }
  
-function addInsumoCampo(){
-  if(!S.insumos.length){ showToast('Cadastre insumos primeiro'); showView('insumos'); return; }
-  const lista=document.getElementById('at-insumos-lista');
-  const row=document.createElement('div'); row.className='insumo-campo';
-  const sel=document.createElement('select');
-  sel.innerHTML='<option value="">Insumo</option>'+S.insumos.map(i=>`<option value="${i.cpU}">${i.nome} (${fmt(i.cpU)}/${i.unidade})</option>`).join('');
-  sel.onchange=recalcPreview;
-  const qtd=document.createElement('input');
-  qtd.type='number'; qtd.inputMode='decimal'; qtd.placeholder='Qtd'; qtd.oninput=recalcPreview;
-  const rem=document.createElement('button');
-  rem.className='btn-rem'; rem.textContent='×'; rem.onclick=()=>{ row.remove(); recalcPreview(); };
-  row.append(sel,qtd,rem); lista.appendChild(row);
+// ── ATENDIMENTO ──
+function addCampo(){
+  if(!S.ins.length){ toast('Cadastre insumos primeiro'); goTo('insumos'); return; }
+  var lista=document.getElementById('ins-campos');
+  var row=document.createElement('div'); row.className='ic';
+  var sel=document.createElement('select');
+  sel.innerHTML='<option value="">Insumo</option>'+S.ins.map(function(i){return '<option value="'+i.cpu+'">'+i.nome+' ('+fmt(i.cpu)+'/'+i.un+')</option>';}).join('');
+  sel.onchange=preview;
+  var qtd=document.createElement('input');
+  qtd.type='number'; qtd.inputMode='decimal'; qtd.placeholder='Qtd'; qtd.oninput=preview;
+  var rem=document.createElement('button');
+  rem.className='ic-rem'; rem.textContent='×';
+  rem.onclick=function(){ row.remove(); preview(); };
+  row.appendChild(sel); row.appendChild(qtd); row.appendChild(rem);
+  lista.appendChild(row);
 }
  
-function getInsumoCusto(){
-  let t=0;
-  document.querySelectorAll('#at-insumos-lista .insumo-campo').forEach(r=>{
-    const sel=r.querySelector('select'),qtd=r.querySelector('input');
-    if(sel?.value&&qtd?.value) t+=parseFloat(sel.value)*parseFloat(qtd.value)||0;
+function getInsC(){
+  var t=0;
+  document.querySelectorAll('#ins-campos .ic').forEach(function(r){
+    var sel=r.querySelector('select'), qtd=r.querySelector('input');
+    if(sel&&sel.value&&qtd&&qtd.value) t+=parseFloat(sel.value)*parseFloat(qtd.value)||0;
   });
   return t;
 }
  
-function recalcPreview(){
-  const c=parseFloat(document.getElementById('at-cobrado').value)||0;
-  const h=parseFloat(document.getElementById('at-horas').value)||0;
-  if(c||h) registrarAtendimento(true);
+function preview(){
+  var c=parseFloat(document.getElementById('at-val').value)||0;
+  var h=parseFloat(document.getElementById('at-h').value)||0;
+  if(c||h) registrar(true);
 }
  
-function registrarAtendimento(preview=false){
-  const proc=document.getElementById('at-proc').value.trim();
-  const cobrado=parseFloat(document.getElementById('at-cobrado').value)||0;
-  const horas=parseFloat(document.getElementById('at-horas').value)||1;
-  const insC=getInsumoCusto();
-  const cw=(S.config.horaCusto||0)*horas;
-  const ct=(S.config.horaProf||0)*horas;
-  const total=insC+cw+ct;
-  const lucro=cobrado-total;
-  const mg=cobrado>0?(lucro/cobrado*100):0;
+function registrar(prev){
+  try {
+    var proc=document.getElementById('at-proc').value.trim();
+    var val=parseFloat(document.getElementById('at-val').value)||0;
+    var h=parseFloat(document.getElementById('at-h').value)||1;
+    var insC=getInsC();
+    var cw=cwCost(h);
+    var ct=(S.cfg.hpro||0)*h;
+    var tot=insC+cw+ct;
+    var luc=val-tot;
+    var mg=val>0?(luc/val*100):0;
  
-  document.getElementById('cr-insumos').textContent=fmt(insC);
-  document.getElementById('cr-cowork').textContent=fmt(cw);
-  document.getElementById('cr-tempo').textContent=fmt(ct);
-  document.getElementById('cr-total').textContent=fmt(total);
-  document.getElementById('cr-cobrado').textContent=fmt(cobrado);
-  document.getElementById('cr-lucro').textContent=fmt(lucro);
-  document.getElementById('cr-margem').textContent=mg.toFixed(1)+'%';
+    document.getElementById('r-ins').textContent=fmt(insC);
+    document.getElementById('r-cw').textContent=fmt(cw);
+    document.getElementById('r-tm').textContent=fmt(ct);
+    document.getElementById('r-tot').textContent=fmt(tot);
+    document.getElementById('r-cob').textContent=fmt(val);
+    document.getElementById('r-luc').textContent=fmt(luc);
+    document.getElementById('r-mg').textContent=mg.toFixed(1)+'%';
  
-  const al=document.getElementById('cr-alerta'); al.style.display='block';
-  if(mg<20){ al.className='alerta bad'; al.textContent=`⚠️ Margem baixa (${mg.toFixed(0)}%). Preço sugerido: ${fmt(total*1.5)}.`; }
-  else if(mg<40){ al.className='alerta warn'; al.textContent=`🟡 Margem razoável (${mg.toFixed(0)}%). Ideal cobrar ${fmt(total*1.5)}.`; }
-  else { al.className='alerta ok'; al.textContent=`✅ Ótima margem (${mg.toFixed(0)}%)!`; }
+    var al=document.getElementById('r-alert'); al.style.display='block';
+    if(mg<20){ al.className='alert bad'; al.textContent='⚠️ Margem baixa ('+mg.toFixed(0)+'%). Preço sugerido: '+fmt(tot*1.5)+'.'; }
+    else if(mg<40){ al.className='alert warn'; al.textContent='🟡 Margem razoável ('+mg.toFixed(0)+'%). Ideal cobrar '+fmt(tot*1.5)+'.'; }
+    else { al.className='alert ok'; al.textContent='✅ Ótima margem ('+mg.toFixed(0)+'%)!'; }
  
-  document.getElementById('calc-result').classList.add('show');
+    document.getElementById('result').classList.add('on');
  
-  if(!preview&&proc&&cobrado>0){
-    S.atendimentos.push({proc,cobrado,horas,insC,cw,ct,custoTotal:total,lucro,margem:mg,data:new Date().toLocaleDateString('pt-BR')});
-    updateDash();
-    document.getElementById('at-proc').value='';
-    document.getElementById('at-cobrado').value='';
-    document.getElementById('at-horas').value='';
-    document.getElementById('at-insumos-lista').innerHTML='';
-    setTimeout(()=>{
-      document.getElementById('calc-result').classList.remove('show');
-      showView('chat');
-      addMsg('agent',`✅ **${proc}** registrado!\nLucro: **${fmt(lucro)}** (margem ${mg.toFixed(0)}%)`);
-      setQR(['Registrar outro','Ver resumo do mês','Procedimento mais lucrativo']);
-    },2000);
-  }
+    if(!prev&&proc&&val>0){
+      S.ats.push({proc:proc,val:val,h:h,insC:insC,cw:cw,ct:ct,tot:tot,luc:luc,mg:mg,data:new Date().toLocaleDateString('pt-BR')});
+      upDash();
+      document.getElementById('at-proc').value='';
+      document.getElementById('at-val').value='';
+      document.getElementById('at-h').value='';
+      document.getElementById('ins-campos').innerHTML='';
+      setTimeout(function(){
+        document.getElementById('result').classList.remove('on');
+        goTo('chat');
+        addMsg('agent','✅ **'+proc+'** registrado!\nLucro: **'+fmt(luc)+'** (margem '+mg.toFixed(0)+'%)');
+        setQR(['Registrar outro','Ver resumo do mês','Procedimento mais lucrativo']);
+      },2000);
+    }
+  } catch(e){ console.error(e); }
 }
  
-function updateDash(){
-  const rec=S.atendimentos.reduce((s,a)=>s+a.cobrado,0);
-  const cus=S.atendimentos.reduce((s,a)=>s+a.custoTotal,0);
-  const luc=rec-cus; const n=S.atendimentos.length;
-  const mg=rec>0?(luc/rec*100):0; const meta=S.config.metaRenda;
-  const pct=meta>0?Math.min(luc/meta*100,100):0;
+// ── DASHBOARD ──
+function upDash(){
+  try {
+    var rec=S.ats.reduce(function(s,a){return s+a.val;},0);
+    var cus=S.ats.reduce(function(s,a){return s+a.tot;},0);
+    var luc=rec-cus; var n=S.ats.length;
+    var mg=rec>0?(luc/rec*100):0;
+    var meta=S.cfg.meta;
+    var pct=meta>0?Math.min(luc/meta*100,100):0;
  
-  document.getElementById('hm-receita').textContent=fmt(rec);
-  document.getElementById('hm-lucro').textContent='lucro '+fmt(luc);
-  document.getElementById('hm-lucro').className='hm-pill '+(luc>0?'green':'');
+    document.getElementById('hm-rec').textContent=fmt(rec);
+    document.getElementById('hm-luc').textContent='lucro '+fmt(luc);
+    document.getElementById('hm-luc').className='pill '+(luc>0?'g':'');
  
-  document.getElementById('d-receita').textContent=fmt(rec);
-  document.getElementById('d-natend').textContent=n+' atend.';
-  document.getElementById('d-custo').textContent=fmt(cus);
-  document.getElementById('d-lucro').textContent=fmt(luc);
-  document.getElementById('d-lucro').style.color=luc>0?'var(--success)':luc<0?'var(--danger)':'var(--ink-soft)';
-  document.getElementById('d-margem').textContent='margem '+mg.toFixed(0)+'%';
-  document.getElementById('d-hora').textContent=S.config.horaProf?fmt(S.config.horaProf):'—';
+    document.getElementById('d-rec').textContent=fmt(rec);
+    document.getElementById('d-nat').textContent=n+' atend.';
+    document.getElementById('d-cus').textContent=fmt(cus);
+    document.getElementById('d-luc').textContent=fmt(luc);
+    document.getElementById('d-luc').style.color=luc>0?'var(--success)':luc<0?'var(--danger)':'var(--ink-soft)';
+    document.getElementById('d-mg').textContent='margem '+mg.toFixed(0)+'%';
+    document.getElementById('d-hora').textContent=S.cfg.hpro?fmt(S.cfg.hpro):'—';
  
-  document.getElementById('d-meta-label').textContent=meta?fmt(luc)+' / '+fmt(meta):'Configure sua meta';
-  document.getElementById('d-meta-pct').textContent=pct.toFixed(0)+'%';
-  document.getElementById('d-meta-bar').style.width=pct+'%';
-  if(meta>0&&n>0){
-    const ticket=rec/n; const falta=Math.max(meta-luc,0);
-    document.getElementById('d-meta-hint').textContent=falta>0?`Faltam ${fmt(falta)} — mais ~${Math.ceil(falta/ticket)} atend. com ticket de ${fmt(ticket)}`:'✅ Meta batida!';
-  }
+    document.getElementById('d-ml').textContent=meta?fmt(luc)+' / '+fmt(meta):'Configure sua meta';
+    document.getElementById('d-mp').textContent=pct.toFixed(0)+'%';
+    document.getElementById('d-mb').style.width=pct+'%';
+    if(meta>0&&n>0){
+      var ticket=rec/n; var falta=Math.max(meta-luc,0);
+      document.getElementById('d-mh').textContent=falta>0?'Faltam '+fmt(falta)+' — mais ~'+Math.ceil(falta/ticket)+' atend. com ticket de '+fmt(ticket):'✅ Meta batida!';
+    }
  
-  document.getElementById('d-insumos-lista').innerHTML=S.insumos.length?S.insumos.map(i=>`<div class="ins-item"><span class="ins-name">${i.nome}</span><span class="ins-price">${fmt(i.cpU)}/${i.unidade}</span></div>`).join(''):'<div class="empty-state"><div class="empty-icon">🧴</div>Nenhum insumo</div>';
+    document.getElementById('d-ins').innerHTML=S.ins.length?S.ins.map(function(i){return '<div class="ii"><span class="in">'+i.nome+'</span><span class="ip">'+fmt(i.cpu)+'/'+i.un+'</span></div>';}).join(''):'<div class="empty"><div class="ei">🧴</div>Nenhum insumo</div>';
  
-  document.getElementById('d-atend-lista').innerHTML=n?[...S.atendimentos].reverse().map(a=>`<div class="atend-item"><div class="atend-row1"><span class="atend-proc">${a.proc}</span><span class="atend-cobrado">${fmt(a.cobrado)}</span></div><div class="atend-row2"><span class="atend-custo">custo: ${fmt(a.custoTotal)}</span><span class="atend-lucro">lucro: ${fmt(a.lucro)} (${a.margem.toFixed(0)}%)</span></div><div style="font-size:11px;color:var(--ink-soft);margin-top:2px">${a.data}</div></div>`).join(''):'<div class="empty-state"><div class="empty-icon">📋</div>Nenhum atendimento ainda</div>';
+    document.getElementById('d-at').innerHTML=n?[].concat(S.ats).reverse().map(function(a){return '<div class="ai"><div class="ai-r1"><span class="ai-proc">'+a.proc+'</span><span class="ai-val">'+fmt(a.val)+'</span></div><div class="ai-r2"><span class="ai-cus">custo: '+fmt(a.tot)+'</span><span class="ai-luc">lucro: '+fmt(a.luc)+' ('+a.mg.toFixed(0)+'%)</span></div><div style="font-size:11px;color:var(--ink-soft);margin-top:2px">'+a.data+'</div></div>';}).join(''):'<div class="empty"><div class="ei">📋</div>Nenhum atendimento ainda</div>';
+  } catch(e){ console.error(e); }
 }
  
-function showView(v){
-  document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById('view-'+v).classList.add('active');
-  const nb=document.getElementById('nav-'+v);
-  if(nb) nb.classList.add('active');
-  if(v==='dash') updateDash();
+// ── NAVEGAÇÃO ──
+function goTo(v){
+  try {
+    document.querySelectorAll('.view').forEach(function(el){ el.classList.remove('active'); });
+    document.querySelectorAll('.nav-btn').forEach(function(b){ b.classList.remove('active'); });
+    var view=document.getElementById('view-'+v);
+    if(view) view.classList.add('active');
+    var nb=document.getElementById('nb-'+v);
+    if(nb) nb.classList.add('active');
+    window.scrollTo(0,0);
+    if(v==='dash') upDash();
+  } catch(e){ console.error(e); }
 }
  
-function extractNum(text,hints){
-  for(const h of hints){ const m=text.match(new RegExp(h+'[^\\d]*([\\d.,]+)','i')); if(m) return parseFloat(m[1].replace(',','.')); }
-  const m=text.match(/[\d.,]+/); return m?parseFloat(m[0].replace(',','.')):0;
+function exNum(text,hints){
+  for(var i=0;i<hints.length;i++){ var m=text.match(new RegExp(hints[i]+'[^\\d]*([\\d.,]+)','i')); if(m) return parseFloat(m[1].replace(',','.')); }
+  var m2=text.match(/[\d.,]+/); return m2?parseFloat(m2[0].replace(',','.')):0;
 }
  
-(function init(){
-  calcConfig(); updateDash();
-  setTimeout(()=>{
-    const first=OB[0];
-    showTyping(()=>{ addMsg('agent',first.msg); setQR(first.qr); },400);
-  },300);
+// ── INIT ──
+(function(){
+  try {
+    calc(); upDash();
+    setTimeout(function(){
+      showTyping(function(){
+        addMsg('agent',OB[0].msg);
+        setQR(OB[0].qr);
+      },400);
+    },300);
+  } catch(e){ console.error('Init error:',e); }
 })();
 </script>
 </body>
