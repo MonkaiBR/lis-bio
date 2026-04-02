@@ -1,0 +1,1331 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lis — sua conselheira financeira</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --rose: #E8A598;
+    --rose-deep: #C47060;
+    --rose-light: #F5DDD8;
+    --rose-pale: #FBF3F1;
+    --ink: #1C1410;
+    --ink-mid: #5C4A44;
+    --ink-soft: #9C8880;
+    --cream: #FAF7F4;
+    --white: #FFFFFF;
+    --border: #EDE0DB;
+    --success: #6BAA8A;
+    --warning: #D4956A;
+    --danger: #C46060;
+    --radius: 16px;
+    --radius-sm: 10px;
+    --shadow: 0 2px 16px rgba(28,20,16,0.08);
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo-mark {
+    width: 36px; height: 36px;
+    background: var(--rose);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Serif Display', serif;
+    font-size: 18px;
+    color: var(--white);
+    flex-shrink: 0;
+  }
+
+  header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    color: var(--ink);
+    font-weight: 400;
+  }
+
+  header span {
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin-left: 4px;
+  }
+
+  .header-tabs {
+    margin-left: auto;
+    display: flex;
+    gap: 4px;
+  }
+
+  .tab-btn {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--ink-mid);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .tab-btn.active, .tab-btn:hover {
+    background: var(--rose);
+    border-color: var(--rose);
+    color: var(--white);
+  }
+
+  /* LAYOUT */
+  .app {
+    display: flex;
+    flex: 1;
+    height: calc(100vh - 69px);
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 300px;
+    background: var(--white);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    flex-shrink: 0;
+  }
+
+  .sidebar-section {
+    padding: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .sidebar-section h3 {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 12px;
+  }
+
+  /* MÉTRICAS */
+  .metric-card {
+    background: var(--rose-pale);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    margin-bottom: 8px;
+  }
+
+  .metric-label {
+    font-size: 12px;
+    color: var(--ink-soft);
+    margin-bottom: 4px;
+  }
+
+  .metric-value {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    color: var(--ink);
+  }
+
+  .metric-value.green { color: var(--success); }
+  .metric-value.orange { color: var(--warning); }
+
+  .metric-sub {
+    font-size: 11px;
+    color: var(--ink-soft);
+    margin-top: 2px;
+  }
+
+  /* INSUMOS LISTA */
+  .insumo-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+
+  .insumo-item:last-child { border-bottom: none; }
+
+  .insumo-name { color: var(--ink); font-weight: 500; }
+  .insumo-price { color: var(--ink-soft); }
+
+  .badge {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+
+  .badge-rose { background: var(--rose-light); color: var(--rose-deep); }
+  .badge-green { background: #E8F5EE; color: #4A8A68; }
+  .badge-orange { background: #FEF0E7; color: #B57040; }
+
+  /* ATENDIMENTOS */
+  .atend-item {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+
+  .atend-item:last-child { border-bottom: none; }
+
+  .atend-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 4px;
+  }
+
+  .atend-proc { font-weight: 500; color: var(--ink); }
+  .atend-cobrado { color: var(--success); font-weight: 600; }
+  .atend-custo { color: var(--danger); font-size: 12px; }
+  .atend-lucro { color: var(--ink-soft); font-size: 12px; }
+
+  /* CHAT */
+  .chat-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .msg {
+    display: flex;
+    gap: 10px;
+    max-width: 75%;
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .msg.user { align-self: flex-end; flex-direction: row-reverse; }
+
+  .msg-avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    font-family: 'DM Serif Display', serif;
+  }
+
+  .msg.agent .msg-avatar { background: var(--rose); color: var(--white); }
+  .msg.user .msg-avatar { background: var(--ink); color: var(--white); font-size: 12px; }
+
+  .msg-bubble {
+    padding: 12px 16px;
+    border-radius: 18px;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .msg.agent .msg-bubble {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-top-left-radius: 4px;
+    color: var(--ink);
+    box-shadow: var(--shadow);
+  }
+
+  .msg.user .msg-bubble {
+    background: var(--rose);
+    border-top-right-radius: 4px;
+    color: var(--white);
+  }
+
+  /* QUICK REPLIES */
+  .quick-replies {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 0 24px 8px;
+  }
+
+  .qr-btn {
+    background: var(--white);
+    border: 1px solid var(--rose);
+    color: var(--rose-deep);
+    border-radius: 20px;
+    padding: 7px 14px;
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .qr-btn:hover {
+    background: var(--rose);
+    color: var(--white);
+  }
+
+  /* INPUT */
+  .chat-input-area {
+    padding: 16px 24px;
+    background: var(--white);
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+  }
+
+  .chat-input {
+    flex: 1;
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 10px 18px;
+    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    outline: none;
+    resize: none;
+    line-height: 1.5;
+    color: var(--ink);
+    background: var(--cream);
+    transition: border-color 0.2s;
+    max-height: 120px;
+  }
+
+  .chat-input:focus { border-color: var(--rose); background: var(--white); }
+  .chat-input::placeholder { color: var(--ink-soft); }
+
+  .send-btn {
+    width: 42px; height: 42px;
+    background: var(--rose);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+
+  .send-btn:hover { background: var(--rose-deep); transform: scale(1.05); }
+
+  .send-btn svg { width: 18px; height: 18px; fill: white; }
+
+  /* PAINEL LATERAL */
+  .panel {
+    display: none;
+    width: 100%;
+  }
+  .panel.active { display: flex; flex-direction: column; }
+
+  /* FORMULÁRIOS */
+  .form-panel {
+    padding: 24px;
+    overflow-y: auto;
+    flex: 1;
+  }
+
+  .form-panel h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    margin-bottom: 6px;
+    font-weight: 400;
+  }
+
+  .form-panel p {
+    font-size: 14px;
+    color: var(--ink-soft);
+    margin-bottom: 24px;
+  }
+
+  .form-group {
+    margin-bottom: 16px;
+  }
+
+  .form-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink-mid);
+    margin-bottom: 6px;
+  }
+
+  .form-group input, .form-group select {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--ink);
+    background: var(--white);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .form-group input:focus, .form-group select:focus {
+    border-color: var(--rose);
+  }
+
+  .form-row { display: flex; gap: 12px; }
+  .form-row .form-group { flex: 1; }
+
+  .btn-primary {
+    width: 100%;
+    background: var(--rose);
+    color: var(--white);
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 12px;
+    font-size: 15px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 8px;
+  }
+
+  .btn-primary:hover { background: var(--rose-deep); }
+
+  /* RESULTADO DO CÁLCULO */
+  .calc-result {
+    background: var(--rose-pale);
+    border: 1px solid var(--rose-light);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-top: 20px;
+    display: none;
+  }
+
+  .calc-result.show { display: block; animation: fadeIn 0.3s ease; }
+
+  .calc-result h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 18px;
+    margin-bottom: 16px;
+    font-weight: 400;
+  }
+
+  .calc-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--rose-light);
+  }
+
+  .calc-row:last-of-type { border-bottom: none; }
+  .calc-row .label { color: var(--ink-mid); }
+  .calc-row .value { font-weight: 500; }
+  .calc-row.total { font-weight: 600; font-size: 16px; color: var(--ink); margin-top: 8px; }
+  .calc-row.lucro .value { color: var(--success); }
+  .calc-row.custo .value { color: var(--danger); }
+
+  .alerta {
+    margin-top: 12px;
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+  }
+
+  .alerta.ok { background: #E8F5EE; color: #2E6B4A; border-left: 3px solid var(--success); }
+  .alerta.warn { background: #FEF0E7; color: #8A4E20; border-left: 3px solid var(--warning); }
+  .alerta.bad { background: #FCEAEA; color: #7A2C2C; border-left: 3px solid var(--danger); }
+
+  /* TIPAGEM */
+  .typing {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    padding: 12px 16px;
+  }
+
+  .typing span {
+    width: 6px; height: 6px;
+    background: var(--rose);
+    border-radius: 50%;
+    animation: bounce 1s infinite;
+    opacity: 0.7;
+  }
+
+  .typing span:nth-child(2) { animation-delay: 0.15s; }
+  .typing span:nth-child(3) { animation-delay: 0.3s; }
+
+  @keyframes bounce {
+    0%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-6px); }
+  }
+
+  /* ONBOARDING */
+  .onboarding-step {
+    display: none;
+  }
+  .onboarding-step.active { display: block; }
+
+  /* ABAS DO PAINEL */
+  .right-panel {
+    width: 380px;
+    border-left: 1px solid var(--border);
+    background: var(--white);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+  }
+
+  .panel-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .panel-tab {
+    flex: 1;
+    padding: 14px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink-soft);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .panel-tab.active {
+    color: var(--rose-deep);
+    border-bottom-color: var(--rose);
+  }
+
+  .panel-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+  }
+
+  /* LOADING */
+  .loading-msg {
+    display: flex;
+    gap: 10px;
+    max-width: 75%;
+  }
+
+  /* EMPTY STATE */
+  .empty {
+    text-align: center;
+    padding: 32px 20px;
+    color: var(--ink-soft);
+    font-size: 14px;
+  }
+
+  .empty-icon {
+    font-size: 32px;
+    margin-bottom: 8px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-mark">L</div>
+  <div>
+    <h1>Lis <span>— sua conselheira financeira</span></h1>
+  </div>
+  <div class="header-tabs">
+    <button class="tab-btn active" onclick="showView('chat')">Chat</button>
+    <button class="tab-btn" onclick="showView('insumos')">Insumos</button>
+    <button class="tab-btn" onclick="showView('atendimento')">Registrar</button>
+  </div>
+</header>
+
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-section">
+      <h3>Este mês</h3>
+      <div class="metric-card">
+        <div class="metric-label">Receita total</div>
+        <div class="metric-value green" id="m-receita">R$ 0</div>
+        <div class="metric-sub" id="m-atend-count">0 atendimentos</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Custos estimados</div>
+        <div class="metric-value orange" id="m-custo">R$ 0</div>
+        <div class="metric-sub">insumos + cowork</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Lucro líquido</div>
+        <div class="metric-value" id="m-lucro" style="color:var(--ink-soft)">R$ 0</div>
+        <div class="metric-sub" id="m-margem">margem: —</div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <h3>Configuração</h3>
+      <div class="insumo-item">
+        <span class="insumo-name">Cowork / hora</span>
+        <span class="insumo-price" id="cfg-cowork-hora">—</span>
+      </div>
+      <div class="insumo-item">
+        <span class="insumo-name">Mensalidade</span>
+        <span class="insumo-price" id="cfg-mensalidade">—</span>
+      </div>
+      <div class="insumo-item">
+        <span class="insumo-name">Valor da sua hora</span>
+        <span class="insumo-price" id="cfg-hora-prof">—</span>
+      </div>
+    </div>
+
+    <div class="sidebar-section" style="flex:1">
+      <h3>Insumos cadastrados</h3>
+      <div id="sidebar-insumos">
+        <div class="empty"><div class="empty-icon">🧴</div>Nenhum insumo ainda</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ÁREA PRINCIPAL -->
+  <div class="chat-area">
+
+    <!-- CHAT -->
+    <div class="panel active" id="panel-chat">
+      <div class="messages" id="messages"></div>
+      <div class="quick-replies" id="quick-replies"></div>
+      <div class="chat-input-area">
+        <textarea class="chat-input" id="chat-input" rows="1" placeholder="Digite sua mensagem..." onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+        <button class="send-btn" onclick="sendMessage()">
+          <svg viewBox="0 0 24 24"><path d="M2 21L23 12L2 3V10L17 12L2 14V21Z"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- INSUMOS -->
+    <div class="panel" id="panel-insumos">
+      <div class="form-panel">
+        <h2>Cadastrar insumo</h2>
+        <p>Adicione seus produtos de estoque com custo total e quantidade. O agente calculará o custo por unidade automaticamente.</p>
+
+        <div class="form-group">
+          <label>Nome do insumo</label>
+          <input type="text" id="ins-nome" placeholder="Ex: Toxina botulínica 100U">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Custo total (R$)</label>
+            <input type="number" id="ins-custo" placeholder="0,00">
+          </div>
+          <div class="form-group">
+            <label>Quantidade total</label>
+            <input type="number" id="ins-qtd" placeholder="Ex: 100">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Unidade de medida</label>
+          <select id="ins-unidade">
+            <option value="U">Unidades (U) — toxina</option>
+            <option value="ml">Mililitros (ml) — ácido, bioestimulador</option>
+            <option value="g">Gramas (g)</option>
+            <option value="fio">Fios (unidade)</option>
+            <option value="ampola">Ampolas</option>
+            <option value="dose">Doses</option>
+          </select>
+        </div>
+
+        <button class="btn-primary" onclick="cadastrarInsumo()">Adicionar insumo</button>
+
+        <div style="margin-top:32px">
+          <h2>Configurar cowork</h2>
+          <p style="margin-bottom:16px">Preciso saber seus custos fixos pra calcular o rateio por atendimento.</p>
+
+          <div class="form-group">
+            <label>Mensalidade do cowork (R$)</label>
+            <input type="number" id="cfg-mens" placeholder="0,00">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Horas incluídas/mês</label>
+              <input type="number" id="cfg-horas-mes" placeholder="Ex: 80">
+            </div>
+            <div class="form-group">
+              <label>Valor hora extra (R$)</label>
+              <input type="number" id="cfg-hora-extra" placeholder="0,00">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Sua meta de renda líquida mensal (R$)</label>
+            <input type="number" id="cfg-meta-renda" placeholder="Ex: 8000">
+          </div>
+          <div class="form-group">
+            <label>Horas que quer trabalhar por mês</label>
+            <input type="number" id="cfg-horas-trabalho" placeholder="Ex: 120">
+          </div>
+          <button class="btn-primary" onclick="salvarConfig()">Salvar configuração</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- REGISTRAR ATENDIMENTO -->
+    <div class="panel" id="panel-atendimento">
+      <div class="form-panel">
+        <h2>Registrar atendimento</h2>
+        <p>Informe o procedimento realizado e os insumos utilizados. O custo real será calculado automaticamente.</p>
+
+        <div class="form-group">
+          <label>Procedimento</label>
+          <input type="text" id="at-proc" placeholder="Ex: Harmonização facial completa">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Valor cobrado (R$)</label>
+            <input type="number" id="at-cobrado" placeholder="0,00" oninput="recalcAtend()">
+          </div>
+          <div class="form-group">
+            <label>Duração (horas)</label>
+            <input type="number" id="at-horas" placeholder="Ex: 1.5" step="0.5" oninput="recalcAtend()">
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-top:8px">
+          <label>Insumos utilizados</label>
+          <div id="at-insumos-lista" style="display:flex;flex-direction:column;gap:8px;margin-bottom:8px"></div>
+          <button type="button" onclick="addInsumoCampo()" style="background:none;border:1px dashed var(--border);border-radius:var(--radius-sm);padding:8px;width:100%;font-size:13px;color:var(--ink-soft);cursor:pointer;font-family:'DM Sans',sans-serif;">+ Adicionar insumo</button>
+        </div>
+
+        <button class="btn-primary" onclick="registrarAtendimento()">Calcular e registrar</button>
+
+        <div class="calc-result" id="calc-result">
+          <h3>Análise do atendimento</h3>
+          <div class="calc-row">
+            <span class="label">Insumos utilizados</span>
+            <span class="value custo" id="cr-insumos">—</span>
+          </div>
+          <div class="calc-row">
+            <span class="label">Cowork (rateado)</span>
+            <span class="value custo" id="cr-cowork">—</span>
+          </div>
+          <div class="calc-row">
+            <span class="label">Custo do seu tempo</span>
+            <span class="value custo" id="cr-tempo">—</span>
+          </div>
+          <div class="calc-row total">
+            <span class="label">Custo total</span>
+            <span class="value" id="cr-total">—</span>
+          </div>
+          <div class="calc-row">
+            <span class="label">Você cobrou</span>
+            <span class="value" id="cr-cobrado">—</span>
+          </div>
+          <div class="calc-row lucro">
+            <span class="label">Lucro líquido</span>
+            <span class="value" id="cr-lucro">—</span>
+          </div>
+          <div class="calc-row lucro">
+            <span class="label">Margem</span>
+            <span class="value" id="cr-margem">—</span>
+          </div>
+          <div id="cr-alerta" class="alerta ok" style="display:none"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- PAINEL DIREITO: Histórico -->
+  <div class="right-panel">
+    <div class="panel-tabs">
+      <button class="panel-tab active" onclick="showRightTab('historico', this)">Histórico</button>
+      <button class="panel-tab" onclick="showRightTab('metas', this)">Metas</button>
+    </div>
+    <div class="panel-content" id="right-content">
+      <div class="empty"><div class="empty-icon">📋</div>Nenhum atendimento registrado ainda.<br>Registre seu primeiro para ver o histórico.</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ========== ESTADO ==========
+let state = {
+  config: { mensalidade: 0, horasMes: 80, horaExtra: 0, metaRenda: 0, horasTrabalho: 120 },
+  insumos: [],
+  atendimentos: [],
+  onboarding: true,
+  onboardingStep: 0
+};
+
+const ONBOARDING = [
+  {
+    agent: "Olá! Sou a Lis, sua conselheira financeira 🌸\n\nFui criada especialmente pra te ajudar a entender os custos reais de cada procedimento e cobrar com segurança.\n\nVamos começar? Me conta: qual é a sua meta de renda líquida por mês?",
+    qr: ["R$ 5.000", "R$ 8.000", "R$ 12.000", "R$ 15.000 ou mais"],
+    handler: (v) => {
+      const mapa = {"R$ 5.000": 5000, "R$ 8.000": 8000, "R$ 12.000": 12000, "R$ 15.000 ou mais": 18000};
+      state.config.metaRenda = mapa[v] || parseFloat(v.replace(/\D/g,'')) || 8000;
+    }
+  },
+  {
+    agent: (prev) => `Ótimo! Meta de ${fmt(state.config.metaRenda)}/mês 👏\n\nAgora me fala: quantas horas por mês você quer (ou consegue) trabalhar?`,
+    qr: ["80 horas", "100 horas", "120 horas", "160 horas"],
+    handler: (v) => {
+      state.config.horasTrabalho = parseInt(v) || 120;
+      recalcHoraProfissional();
+    }
+  },
+  {
+    agent: () => {
+      const hora = state.config.metaRenda / state.config.horasTrabalho;
+      return `Perfeito! Isso significa que **sua hora vale R$ ${hora.toFixed(2)}** — e esse valor vai entrar no custo de cada procedimento.\n\nAgora o cowork: qual é o valor da sua mensalidade lá?`;
+    },
+    qr: ["Não tenho mensalidade", "R$ 800", "R$ 1.200", "R$ 1.500", "R$ 2.000"],
+    handler: (v) => {
+      if (v === "Não tenho mensalidade") state.config.mensalidade = 0;
+      else state.config.mensalidade = parseFloat(v.replace(/[^\d]/g,'')) || 0;
+    }
+  },
+  {
+    agent: () => `Entendido! E quando você usa hora extra no cowork, além do plano, qual o valor por hora?`,
+    qr: ["R$ 20/h", "R$ 30/h", "R$ 40/h", "R$ 50/h", "Não uso hora extra"],
+    handler: (v) => {
+      if (v === "Não uso hora extra") state.config.horaExtra = 0;
+      else state.config.horaExtra = parseInt(v.replace(/[^\d]/g,'')) || 0;
+      atualizarSidebar();
+    }
+  },
+  {
+    agent: () => `Perfeito, configuração salva! ✅\n\nAgora vamos cadastrar seus insumos. Me diz: qual produto você mais usa nos procedimentos? (ex: toxina botulínica, ácido hialurônico, fios de PDO...)\n\nPode digitar o nome, custo total e quantidade. Exemplo:\n"Toxina 100U, custou R$350, tenho 100 unidades"`,
+    qr: ["Pular por agora", "Toxina 100U — R$350", "Ácido hialurônico 1ml — R$180", "Fios PDO — R$120"],
+    handler: (v) => {
+      if (v !== "Pular por agora") parseInsumoChatMessage(v);
+    }
+  },
+  {
+    agent: () => `Boa! Agora já consigo calcular o custo de qualquer procedimento pra você 🎉\n\nPode me pedir assim:\n• "Calcular harmonização: usei 40U toxina, cobrei R$600, 1h"\n• "Quanto custa meu bioestimulador?"\n• "Qual meu lucro do mês?"\n\nOu use os botões acima pra cadastrar insumos e registrar atendimentos. O que você quer fazer agora?`,
+    qr: ["Cadastrar insumos", "Registrar atendimento", "Ver meu lucro do mês"],
+    handler: (v) => {
+      state.onboarding = false;
+      if (v === "Cadastrar insumos") showView('insumos');
+      else if (v === "Registrar atendimento") showView('atendimento');
+    }
+  }
+];
+
+// ========== UTILS ==========
+function fmt(v) { return 'R$ ' + parseFloat(v).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2}); }
+function recalcHoraProfissional() {
+  if (state.config.horasTrabalho > 0)
+    state.config.horaProf = state.config.metaRenda / state.config.horasTrabalho;
+}
+function recalcHoraCowork() {
+  if (state.config.horasMes > 0)
+    state.config.horaCusto = state.config.mensalidade / state.config.horasMes;
+  else state.config.horaCusto = 0;
+}
+
+// ========== CHAT ==========
+function addMsg(role, text) {
+  const msgs = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  const av = role === 'agent' ? 'L' : 'Eu';
+  div.innerHTML = `
+    <div class="msg-avatar">${av}</div>
+    <div class="msg-bubble">${text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g,'<br>')}</div>
+  `;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function showQR(options) {
+  const qr = document.getElementById('quick-replies');
+  qr.innerHTML = '';
+  options.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'qr-btn';
+    btn.textContent = opt;
+    btn.onclick = () => { qr.innerHTML = ''; sendMessage(opt); };
+    qr.appendChild(btn);
+  });
+}
+
+function showTyping(cb, delay=1000) {
+  const msgs = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = 'msg agent';
+  div.id = 'typing-indicator';
+  div.innerHTML = `<div class="msg-avatar">L</div><div class="msg-bubble"><div class="typing"><span></span><span></span><span></span></div></div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  setTimeout(() => {
+    div.remove();
+    cb();
+  }, delay);
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+function sendMessage(override) {
+  const input = document.getElementById('chat-input');
+  const text = override || input.value.trim();
+  if (!text) return;
+  input.value = '';
+  input.style.height = 'auto';
+  document.getElementById('quick-replies').innerHTML = '';
+
+  addMsg('user', text);
+
+  if (state.onboarding) {
+    handleOnboarding(text);
+  } else {
+    handleFreeChat(text);
+  }
+}
+
+// ========== ONBOARDING ==========
+function nextOnboarding() {
+  const step = ONBOARDING[state.onboardingStep];
+  const msg = typeof step.agent === 'function' ? step.agent() : step.agent;
+  showTyping(() => {
+    addMsg('agent', msg);
+    showQR(step.qr);
+  }, 800);
+}
+
+function handleOnboarding(text) {
+  const step = ONBOARDING[state.onboardingStep];
+  step.handler(text);
+  state.onboardingStep++;
+  if (state.onboardingStep < ONBOARDING.length) {
+    nextOnboarding();
+  }
+}
+
+// ========== CHAT LIVRE ==========
+function handleFreeChat(text) {
+  const lower = text.toLowerCase();
+
+  // calcular procedimento
+  if (lower.includes('calcul') || lower.includes('custou') || lower.includes('cobr')) {
+    const cobrado = extractNumber(text, ['cobrei', 'cobrado', 'r$', 'valor']);
+    const horas = extractNumber(text, ['hora', 'h']) || 1;
+    const insumosCusto = extractInsumosFromText(text);
+
+    const custoCowork = calcCustoCowork(horas);
+    const custoTempo = (state.config.horaProf || 0) * horas;
+    const custoTotal = insumosCusto + custoCowork + custoTempo;
+    const lucro = cobrado - custoTotal;
+    const margem = cobrado > 0 ? (lucro / cobrado * 100) : 0;
+
+    showTyping(() => {
+      let resp = `Aqui está a análise:\n\n`;
+      resp += `💊 Insumos: ${fmt(insumosCusto)}\n`;
+      resp += `🏢 Cowork (${horas}h): ${fmt(custoCowork)}\n`;
+      resp += `⏱ Seu tempo: ${fmt(custoTempo)}\n`;
+      resp += `📊 **Custo total: ${fmt(custoTotal)}**\n\n`;
+      if (cobrado > 0) {
+        resp += `Você cobrou ${fmt(cobrado)}\n`;
+        resp += `Lucro: **${fmt(lucro)}** (margem ${margem.toFixed(0)}%)\n\n`;
+        if (margem < 20) resp += `⚠️ Margem baixa! Considere reajustar o preço.`;
+        else if (margem >= 40) resp += `✅ Ótima margem! Procedimento saudável financeiramente.`;
+        else resp += `🟡 Margem razoável. Ideal seria acima de 40%.`;
+      }
+      addMsg('agent', resp);
+      showQR(["Registrar este atendimento", "Calcular outro", "Ver lucro do mês"]);
+    });
+    return;
+  }
+
+  // lucro do mês
+  if (lower.includes('lucro') || lower.includes('mês') || lower.includes('faturei')) {
+    const receita = state.atendimentos.reduce((s,a) => s + a.cobrado, 0);
+    const custo = state.atendimentos.reduce((s,a) => s + a.custoTotal, 0);
+    const lucro = receita - custo;
+    const n = state.atendimentos.length;
+    showTyping(() => {
+      if (n === 0) {
+        addMsg('agent', `Você ainda não registrou nenhum atendimento este mês. Registre seu primeiro para ver o resumo financeiro!`);
+        showQR(["Registrar atendimento", "Cadastrar insumos"]);
+      } else {
+        const margem = receita > 0 ? (lucro/receita*100) : 0;
+        addMsg('agent', `📊 **Resumo do mês:**\n\n${n} atendimentos realizados\nReceita: **${fmt(receita)}**\nCustos: ${fmt(custo)}\n\n💰 **Lucro líquido: ${fmt(lucro)}** (margem ${margem.toFixed(0)}%)\n\n${lucro >= state.config.metaRenda ? '✅ Meta batida! Parabéns!' : `⚠️ Ainda faltam ${fmt(state.config.metaRenda - lucro)} para a sua meta de ${fmt(state.config.metaRenda)}.`}`);
+        showQR(["Registrar atendimento", "Ver detalhes", "Qual meu procedimento mais lucrativo?"]);
+      }
+    });
+    return;
+  }
+
+  // procedimento mais lucrativo
+  if (lower.includes('lucrativo') || lower.includes('melhor procedimento')) {
+    if (state.atendimentos.length === 0) {
+      showTyping(() => { addMsg('agent', 'Ainda sem atendimentos registrados. Registre alguns para ver a análise!'); });
+      return;
+    }
+    const grouped = {};
+    state.atendimentos.forEach(a => {
+      if (!grouped[a.procedimento]) grouped[a.procedimento] = [];
+      grouped[a.procedimento].push(a.margem);
+    });
+    let best = '', bestM = -999;
+    Object.entries(grouped).forEach(([p, ms]) => {
+      const avg = ms.reduce((s,v)=>s+v,0)/ms.length;
+      if (avg > bestM) { bestM = avg; best = p; }
+    });
+    showTyping(() => {
+      addMsg('agent', `🏆 Seu procedimento mais lucrativo é **${best}** com margem média de **${bestM.toFixed(0)}%**!\n\nConsidere priorizar esse procedimento na sua agenda.`);
+    });
+    return;
+  }
+
+  // fallback com API Claude
+  callClaude(text);
+}
+
+async function callClaude(text) {
+  const insumosList = state.insumos.map(i => `${i.nome}: R$${i.custoPorUnidade.toFixed(2)}/${i.unidade}`).join(', ') || 'nenhum cadastrado';
+  const configStr = `Mensalidade cowork: R$${state.config.mensalidade}, hora cowork: R$${(state.config.horaCusto||0).toFixed(2)}, hora profissional: R$${(state.config.horaProf||0).toFixed(2)}, meta renda: R$${state.config.metaRenda}`;
+
+  showTyping(async () => {
+    try {
+      const res = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 1000,
+          system: `Você é a Lis, conselheira financeira especializada em biomédicas esteticistas. Responda em português brasileiro, de forma calorosa, direta e sem jargões. Use máx 3 parágrafos curtos. Contexto da profissional: ${configStr}. Insumos cadastrados: ${insumosList}. Atendimentos este mês: ${state.atendimentos.length}. Foque em orientações práticas de precificação e gestão financeira.`,
+          messages: [{ role: "user", content: text }]
+        })
+      });
+      const data = await res.json();
+      const reply = data.content?.[0]?.text || "Não consegui processar. Tente novamente!";
+      addMsg('agent', reply);
+      showQR(["Registrar atendimento", "Calcular custo", "Ver lucro do mês"]);
+    } catch(e) {
+      addMsg('agent', "Tive um problema de conexão. Mas posso te ajudar com: calcular custo de procedimentos, ver lucro do mês, ou cadastrar insumos!");
+      showQR(["Calcular procedimento", "Ver lucro do mês", "Cadastrar insumos"]);
+    }
+  }, 600);
+}
+
+// ========== INSUMOS ==========
+function cadastrarInsumo() {
+  const nome = document.getElementById('ins-nome').value.trim();
+  const custo = parseFloat(document.getElementById('ins-custo').value);
+  const qtd = parseFloat(document.getElementById('ins-qtd').value);
+  const unidade = document.getElementById('ins-unidade').value;
+
+  if (!nome || !custo || !qtd) { alert('Preencha todos os campos!'); return; }
+
+  const ins = { nome, custo, qtd, unidade, custoPorUnidade: custo/qtd };
+  state.insumos.push(ins);
+  atualizarSidebar();
+  document.getElementById('ins-nome').value = '';
+  document.getElementById('ins-custo').value = '';
+  document.getElementById('ins-qtd').value = '';
+
+  addMsg('agent', `✅ Insumo **${nome}** cadastrado!\nCusto por ${unidade}: **${fmt(ins.custoPorUnidade)}**`);
+  showView('chat');
+}
+
+function salvarConfig() {
+  state.config.mensalidade = parseFloat(document.getElementById('cfg-mens').value) || 0;
+  state.config.horasMes = parseFloat(document.getElementById('cfg-horas-mes').value) || 80;
+  state.config.horaExtra = parseFloat(document.getElementById('cfg-hora-extra').value) || 0;
+  state.config.metaRenda = parseFloat(document.getElementById('cfg-meta-renda').value) || 0;
+  state.config.horasTrabalho = parseFloat(document.getElementById('cfg-horas-trabalho').value) || 120;
+  recalcHoraProfissional();
+  recalcHoraCowork();
+  atualizarSidebar();
+  addMsg('agent', `✅ Configuração salva!\nSua hora vale: **${fmt(state.config.horaProf || 0)}**\nCusto/hora cowork: **${fmt(state.config.horaCusto || 0)}**`);
+  showView('chat');
+}
+
+function parseInsumoChatMessage(text) {
+  // tenta parsear "Toxina 100U — R$350" ou similar
+  const match = text.match(/(.+?)[,\-—]+\s*[Rr]\$?\s*([\d,.]+)/);
+  if (match) {
+    const nome = match[1].trim();
+    const custo = parseFloat(match[2].replace(',','.'));
+    const qtdMatch = nome.match(/(\d+)/);
+    const qtd = qtdMatch ? parseInt(qtdMatch[1]) : 1;
+    state.insumos.push({ nome, custo, qtd, unidade: 'U', custoPorUnidade: custo/qtd });
+    atualizarSidebar();
+  }
+}
+
+// ========== ATENDIMENTO ==========
+function addInsumoCampo() {
+  const lista = document.getElementById('at-insumos-lista');
+  const row = document.createElement('div');
+  row.style.cssText = 'display:flex;gap:8px;align-items:center';
+
+  const sel = document.createElement('select');
+  sel.style.cssText = 'flex:2;border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 10px;font-family:"DM Sans",sans-serif;font-size:13px;color:var(--ink);background:var(--white);outline:none';
+  sel.innerHTML = '<option value="">Selecione insumo</option>' +
+    state.insumos.map(i => `<option value="${i.custoPorUnidade}">${i.nome} (${fmt(i.custoPorUnidade)}/${i.unidade})</option>`).join('');
+
+  const qtdInput = document.createElement('input');
+  qtdInput.type = 'number';
+  qtdInput.placeholder = 'Qtd';
+  qtdInput.style.cssText = 'flex:1;border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 10px;font-family:"DM Sans",sans-serif;font-size:13px;color:var(--ink);outline:none';
+  qtdInput.oninput = recalcAtend;
+  sel.onchange = recalcAtend;
+
+  const rem = document.createElement('button');
+  rem.textContent = '×';
+  rem.style.cssText = 'border:none;background:none;font-size:18px;color:var(--ink-soft);cursor:pointer;padding:0 4px';
+  rem.onclick = () => { row.remove(); recalcAtend(); };
+
+  row.appendChild(sel);
+  row.appendChild(qtdInput);
+  row.appendChild(rem);
+  lista.appendChild(row);
+
+  if (state.insumos.length === 0) {
+    row.innerHTML = '<span style="font-size:13px;color:var(--ink-soft)">Cadastre insumos primeiro na aba "Insumos"</span>';
+  }
+}
+
+function recalcAtend() {
+  // só mostra preview se tiver resultado visível
+  const result = document.getElementById('calc-result');
+  if (result.classList.contains('show')) registrarAtendimento(true);
+}
+
+function registrarAtendimento(preview=false) {
+  const proc = document.getElementById('at-proc').value.trim();
+  const cobrado = parseFloat(document.getElementById('at-cobrado').value) || 0;
+  const horas = parseFloat(document.getElementById('at-horas').value) || 1;
+
+  // calcular insumos
+  let custoInsumos = 0;
+  document.querySelectorAll('#at-insumos-lista > div').forEach(row => {
+    const sel = row.querySelector('select');
+    const qtd = row.querySelector('input');
+    if (sel && qtd && sel.value && qtd.value) {
+      custoInsumos += parseFloat(sel.value) * parseFloat(qtd.value);
+    }
+  });
+
+  const custoCowork = calcCustoCowork(horas);
+  const custoTempo = (state.config.horaProf || 0) * horas;
+  const custoTotal = custoInsumos + custoCowork + custoTempo;
+  const lucro = cobrado - custoTotal;
+  const margem = cobrado > 0 ? (lucro/cobrado*100) : 0;
+
+  // mostrar resultado
+  document.getElementById('cr-insumos').textContent = fmt(custoInsumos);
+  document.getElementById('cr-cowork').textContent = fmt(custoCowork);
+  document.getElementById('cr-tempo').textContent = fmt(custoTempo);
+  document.getElementById('cr-total').textContent = fmt(custoTotal);
+  document.getElementById('cr-cobrado').textContent = fmt(cobrado);
+  document.getElementById('cr-lucro').textContent = fmt(lucro);
+  document.getElementById('cr-margem').textContent = margem.toFixed(1) + '%';
+
+  const alerta = document.getElementById('cr-alerta');
+  alerta.style.display = 'block';
+  if (margem < 20) {
+    alerta.className = 'alerta bad';
+    alerta.textContent = `⚠️ Margem muito baixa (${margem.toFixed(0)}%). Recomendo cobrar no mínimo ${fmt(custoTotal * 1.4)}.`;
+  } else if (margem < 40) {
+    alerta.className = 'alerta warn';
+    alerta.textContent = `🟡 Margem razoável (${margem.toFixed(0)}%). O ideal seria cobrar ${fmt(custoTotal * 1.5)}.`;
+  } else {
+    alerta.className = 'alerta ok';
+    alerta.textContent = `✅ Ótima margem (${margem.toFixed(0)}%)! Procedimento saudável financeiramente.`;
+  }
+
+  document.getElementById('calc-result').classList.add('show');
+
+  if (!preview && proc && cobrado > 0) {
+    // salvar atendimento
+    state.atendimentos.push({ procedimento: proc, cobrado, horas, custoInsumos, custoCowork, custoTempo, custoTotal, lucro, margem, data: new Date().toLocaleDateString('pt-BR') });
+    atualizarSidebar();
+    atualizarHistorico();
+
+    // limpar formulário
+    setTimeout(() => {
+      document.getElementById('at-proc').value = '';
+      document.getElementById('at-cobrado').value = '';
+      document.getElementById('at-horas').value = '';
+      document.getElementById('at-insumos-lista').innerHTML = '';
+      document.getElementById('calc-result').classList.remove('show');
+      showView('chat');
+      addMsg('agent', `✅ Atendimento **${proc}** registrado!\nLucro: **${fmt(lucro)}** (margem ${margem.toFixed(0)}%)`);
+      showQR(["Registrar outro", "Ver lucro do mês", "Qual meu procedimento mais lucrativo?"]);
+    }, 2000);
+  }
+}
+
+function calcCustoCowork(horas) {
+  if (state.config.mensalidade <= 0) return (state.config.horaExtra || 0) * horas;
+  const custoBase = (state.config.horaCusto || 0) * horas;
+  return custoBase;
+}
+
+// ========== SIDEBAR / HISTÓRICO ==========
+function atualizarSidebar() {
+  // config
+  document.getElementById('cfg-cowork-hora').textContent = fmt(state.config.horaCusto || 0) + '/h';
+  document.getElementById('cfg-mensalidade').textContent = fmt(state.config.mensalidade);
+  document.getElementById('cfg-hora-prof').textContent = fmt(state.config.horaProf || 0) + '/h';
+
+  // insumos
+  const el = document.getElementById('sidebar-insumos');
+  if (state.insumos.length === 0) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">🧴</div>Nenhum insumo ainda</div>';
+  } else {
+    el.innerHTML = state.insumos.map(i => `
+      <div class="insumo-item">
+        <span class="insumo-name">${i.nome}</span>
+        <span class="insumo-price">${fmt(i.custoPorUnidade)}/${i.unidade}</span>
+      </div>
+    `).join('');
+  }
+
+  // métricas
+  const receita = state.atendimentos.reduce((s,a) => s+a.cobrado, 0);
+  const custo = state.atendimentos.reduce((s,a) => s+a.custoTotal, 0);
+  const lucro = receita - custo;
+  const margem = receita > 0 ? (lucro/receita*100) : 0;
+
+  document.getElementById('m-receita').textContent = fmt(receita);
+  document.getElementById('m-custo').textContent = fmt(custo);
+  document.getElementById('m-lucro').textContent = fmt(lucro);
+  document.getElementById('m-lucro').style.color = lucro > 0 ? 'var(--success)' : 'var(--danger)';
+  document.getElementById('m-margem').textContent = `margem: ${margem.toFixed(0)}%`;
+  document.getElementById('m-atend-count').textContent = `${state.atendimentos.length} atendimento${state.atendimentos.length !== 1 ? 's' : ''}`;
+}
+
+function atualizarHistorico() {
+  const el = document.getElementById('right-content');
+  if (state.atendimentos.length === 0) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">📋</div>Nenhum atendimento registrado ainda.</div>';
+    return;
+  }
+  el.innerHTML = [...state.atendimentos].reverse().map(a => `
+    <div class="atend-item">
+      <div class="atend-header">
+        <span class="atend-proc">${a.procedimento}</span>
+        <span class="atend-cobrado">${fmt(a.cobrado)}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between">
+        <span class="atend-custo">custo: ${fmt(a.custoTotal)}</span>
+        <span class="atend-lucro">lucro: ${fmt(a.lucro)} (${a.margem.toFixed(0)}%)</span>
+      </div>
+      <div style="font-size:11px;color:var(--ink-soft);margin-top:2px">${a.data}</div>
+    </div>
+  `).join('');
+}
+
+// ========== NAVEGAÇÃO ==========
+function showView(view) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+
+  document.getElementById(`panel-${view}`).classList.add('active');
+  const tabs = { chat: 0, insumos: 1, atendimento: 2 };
+  document.querySelectorAll('.tab-btn')[tabs[view]]?.classList.add('active');
+}
+
+function showRightTab(tab, btn) {
+  document.querySelectorAll('.panel-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  const el = document.getElementById('right-content');
+  if (tab === 'historico') {
+    atualizarHistorico();
+  } else {
+    const receita = state.atendimentos.reduce((s,a)=>s+a.cobrado,0);
+    const lucro = state.atendimentos.reduce((s,a)=>s+a.lucro,0);
+    const meta = state.config.metaRenda;
+    const pct = meta > 0 ? Math.min(lucro/meta*100, 100) : 0;
+    el.innerHTML = `
+      <div style="margin-bottom:20px">
+        <div style="font-size:13px;color:var(--ink-soft);margin-bottom:8px">Meta mensal</div>
+        <div style="font-family:'DM Serif Display',serif;font-size:28px;margin-bottom:4px">${fmt(meta)}</div>
+        <div style="background:var(--border);border-radius:4px;height:8px;overflow:hidden;margin-bottom:6px">
+          <div style="width:${pct}%;height:100%;background:var(--rose);border-radius:4px;transition:width 0.5s"></div>
+        </div>
+        <div style="font-size:13px;color:var(--ink-soft)">${pct.toFixed(0)}% atingido — ${fmt(lucro)} de ${fmt(meta)}</div>
+      </div>
+      <div style="font-size:13px;color:var(--ink-soft);margin-bottom:8px">Falta para a meta</div>
+      <div style="font-family:'DM Serif Display',serif;font-size:22px;color:${meta > lucro ? 'var(--warning)' : 'var(--success)'}">${fmt(Math.max(meta - lucro, 0))}</div>
+      ${state.atendimentos.length > 0 && meta > lucro ? `<div style="margin-top:16px;font-size:13px;color:var(--ink-mid)">💡 Você precisaria de mais <strong>${Math.ceil((meta-lucro)/(receita/state.atendimentos.length||1))}</strong> atendimentos com ticket médio de ${fmt(receita/state.atendimentos.length||0)}.</div>` : ''}
+    `;
+  }
+}
+
+// ========== EXTRAÇÃO DE TEXTO ==========
+function extractNumber(text, hints) {
+  const patterns = [
+    /r\$\s*([\d.,]+)/gi,
+    /(\d+(?:[.,]\d+)?)\s*(?:reais|hora|h\b)/gi,
+    /(\d+(?:[.,]\d+)?)/g
+  ];
+  for (const hint of hints) {
+    const re = new RegExp(`${hint}[^\\d]*(\\d+(?:[.,]\\d+)?)`, 'i');
+    const m = text.match(re);
+    if (m) return parseFloat(m[1].replace(',','.'));
+  }
+  for (const p of patterns) {
+    const m = p.exec(text);
+    if (m) return parseFloat(m[1].replace(',','.'));
+  }
+  return 0;
+}
+
+function extractInsumosFromText(text) {
+  let total = 0;
+  state.insumos.forEach(ins => {
+    const re = new RegExp(`(\\d+(?:[.,]\\d+)?)\\s*${ins.unidade}?\\s*(?:de\\s+)?${ins.nome.split(' ')[0]}`, 'i');
+    const m = text.match(re);
+    if (m) total += parseFloat(m[1].replace(',','.')) * ins.custoPorUnidade;
+  });
+  return total;
+}
+
+// ========== INIT ==========
+function init() {
+  recalcHoraCowork();
+  atualizarSidebar();
+  setTimeout(() => nextOnboarding(), 500);
+}
+
+init();
+</script>
+</body>
+</html>
